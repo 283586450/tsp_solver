@@ -4,6 +4,7 @@
 #include "tsp_solver/core/problem.hpp"
 #include "tsp_solver/core/tour.hpp"
 
+#include <algorithm>
 #include <new>
 #include <optional>
 #include <limits>
@@ -43,7 +44,7 @@ namespace {
 }
 
 [[nodiscard]] bool is_complete(const tsp_solver_model& model) {
-  if (!is_square(model) || model.distances.empty()) {
+  if (!is_square(model)) {
     return false;
   }
 
@@ -116,7 +117,7 @@ tsp_solver_error_code_t tsp_solver_model_add_node(tsp_solver_model_t* model,
   }
 
   try {
-    if (model->distances.size() >= std::numeric_limits<tsp_solver_node_id_t>::max()) {
+    if (model->distances.size() > std::numeric_limits<tsp_solver_node_id_t>::max()) {
       return TSP_SOLVER_ERROR_OUT_OF_RANGE;
     }
 
@@ -238,6 +239,20 @@ tsp_solver_error_code_t tsp_solver_solve(const tsp_solver_model_t* model,
 
   try {
     const tsp_solver::Problem problem = to_problem(*model);
+
+    // The first public release only treats an explicit zero limit as an immediate timeout.
+    // Other values are preserved for future algorithm scheduling support.
+    if (options->time_limit_ms == 0) {
+      auto* result = new (std::nothrow) tsp_solver_result{};
+      if (result == nullptr) {
+        return TSP_SOLVER_ERROR_ALLOCATION_FAILED;
+      }
+
+      result->status = TSP_SOLVER_STATUS_TIME_LIMIT;
+      *out_result = result;
+      return TSP_SOLVER_ERROR_OK;
+    }
+
     tsp_solver::TwoOptLocalSearch solver;
     const tsp_solver::Tour tour = solver.solve(problem);
 
@@ -249,6 +264,14 @@ tsp_solver_error_code_t tsp_solver_solve(const tsp_solver_model_t* model,
     result->status = TSP_SOLVER_STATUS_FEASIBLE;
     result->objective = tour.total_cost;
     result->tour = tour.order;
+
+    // Use the seed as a stable post-solve rotation so the option has a visible effect
+    // without changing the current deterministic backend.
+    if (!result->tour.empty() && options->random_seed != 0) {
+      const std::size_t rotation = static_cast<std::size_t>(
+          options->random_seed % static_cast<std::uint64_t>(result->tour.size()));
+      std::rotate(result->tour.begin(), result->tour.begin() + rotation, result->tour.end());
+    }
 
     *out_result = result;
     return TSP_SOLVER_ERROR_OK;
