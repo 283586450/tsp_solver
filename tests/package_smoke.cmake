@@ -6,6 +6,10 @@ if(NOT DEFINED make_program)
   message(FATAL_ERROR "make_program is required")
 endif()
 
+if(NOT DEFINED project_version)
+  message(FATAL_ERROR "project_version is required")
+endif()
+
 if(NOT DEFINED c_compiler OR NOT DEFINED cxx_compiler)
   message(FATAL_ERROR "c_compiler and cxx_compiler are required")
 endif()
@@ -21,6 +25,7 @@ set(configure_args
     -DCMAKE_CXX_COMPILER=${cxx_compiler}
     -S "${CMAKE_CURRENT_LIST_DIR}/package_smoke"
     -B "${consumer_build_dir}"
+    -Dtsp_solver_VERSION_REQUIRED=${project_version}
     -Dtsp_solver_DIR=${install_dir}/lib/cmake/tsp_solver)
 
 if(CMAKE_HOST_WIN32)

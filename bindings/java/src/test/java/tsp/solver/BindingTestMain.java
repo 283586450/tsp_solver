@@ -89,7 +89,9 @@ public final class BindingTestMain {
 
   private static void testVersionMismatchMessage() {
     expectThrowsMessage(IllegalStateException.class,
-        "Java binding version 9.9.9 does not match native library version 0.1.0. Use the jar and native bundle from the same tsp_solver release.",
+        "Java binding version 9.9.9 does not match native library version "
+            + Version.STRING
+            + ". Use the jar and native bundle from the same tsp_solver release.",
         new ThrowingRunnable() {
       @Override
       public void run() {
