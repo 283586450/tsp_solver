@@ -10,6 +10,7 @@ public final class BindingTestMain {
     testValidationError();
     testRangeError();
     testCloseIsIdempotent();
+    testVersionMismatchMessage();
   }
 
   private static void testSolveCompleteGraph() {
@@ -84,6 +85,15 @@ public final class BindingTestMain {
         model.addNode();
       }
     }, "closed model must reject further use");
+  }
+
+  private static void testVersionMismatchMessage() {
+    expectThrows(IllegalStateException.class, new ThrowingRunnable() {
+      @Override
+      public void run() {
+        NativeLibrary.ensureVersionMatch("0.1.0", "9.9.9");
+      }
+    }, "mismatched Java and native versions must fail");
   }
 
   private static void assertTrue(boolean condition, String message) {
