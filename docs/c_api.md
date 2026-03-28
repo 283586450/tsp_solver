@@ -1,22 +1,22 @@
 # TSP Solver C API
 
-The C API provides opaque handles for models, options, and results. Include `include/tsp_solver/c_api.h` and follow this flow:
+C API 为模型、选项和结果提供不透明句柄。包含 `include/tsp_solver/c_api.h` 后，按以下流程使用：
 
-1. Create a model.
-2. Add nodes and set distances.
-3. Create options and choose an algorithm.
-4. Solve.
-5. Copy the tour, objective, and selected algorithm from the result.
+1. 创建模型。
+2. 添加节点并设置距离。
+3. 创建选项并选择算法。
+4. 求解。
+5. 从结果中复制 tour、目标值和所选算法。
 
-Available algorithms are `TSP_SOLVER_ALGORITHM_DEFAULT`,
-`TSP_SOLVER_ALGORITHM_LOCAL_SEARCH_2OPT`,
-`TSP_SOLVER_ALGORITHM_GREEDY_NEAREST_NEIGHBOR`,
-`TSP_SOLVER_ALGORITHM_GREEDY_CHEAPEST_INSERTION`, and
-`TSP_SOLVER_ALGORITHM_HELD_KARP`.
-The metaheuristic `TSP_SOLVER_ALGORITHM_METAHEURISTIC_ITERATED_LOCAL_SEARCH`
-uses the configured random seed for deterministic perturbations.
-`TSP_SOLVER_ALGORITHM_HELD_KARP` returns `TSP_SOLVER_ERROR_OUT_OF_RANGE` above
-18 nodes.
+可用算法包括 `TSP_SOLVER_ALGORITHM_DEFAULT`、
+`TSP_SOLVER_ALGORITHM_LOCAL_SEARCH_2OPT`、
+`TSP_SOLVER_ALGORITHM_GREEDY_NEAREST_NEIGHBOR`、
+`TSP_SOLVER_ALGORITHM_GREEDY_CHEAPEST_INSERTION`、
+`TSP_SOLVER_ALGORITHM_HELD_KARP` 和
+`TSP_SOLVER_ALGORITHM_METAHEURISTIC_ITERATED_LOCAL_SEARCH`。
+元启发式 `TSP_SOLVER_ALGORITHM_METAHEURISTIC_ITERATED_LOCAL_SEARCH`
+会使用配置的随机种子来生成确定性的扰动。
+`TSP_SOLVER_ALGORITHM_HELD_KARP` 在超过 18 个节点时会返回 `TSP_SOLVER_ERROR_OUT_OF_RANGE`。
 
 ```c
 #include "tsp_solver/c_api.h"
@@ -79,4 +79,5 @@ tsp_solver_options_destroy(options);
 tsp_solver_model_destroy(model);
 ```
 
-Use `tsp_solver_result_get_tour_size` first, then allocate a buffer of that size and call `tsp_solver_result_get_tour` to copy out the node order.
+请先调用 `tsp_solver_result_get_tour_size`，再分配同等大小的缓冲区，然后调用
+`tsp_solver_result_get_tour` 来拷贝节点顺序。

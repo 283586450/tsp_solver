@@ -1,13 +1,10 @@
-# tsp_solver Python bindings
+# tsp_solver Python 绑定
 
-Platform wheels bundle the native `tsp_solver` shared library so installed wheels
-can import and solve directly without extra environment setup.
+平台 wheel 会打包原生 `tsp_solver` 共享库，因此安装后的 wheel 可以直接导入并求解，
+无需额外环境配置。
 
-Use the wheel from the same release version as the rest of the artifacts if you
-also consume the native install archive or Java bindings.
+如果你还会使用原生安装归档或 Java 绑定，请使用与其他产物相同发布版本的 wheel。
 
-Linux wheels are currently built and verified on the matching GitHub-hosted
-runner image; they are not yet repaired to a manylinux baseline.
+Linux wheel 当前在匹配的 GitHub 托管 runner 镜像上构建并验证，尚未修复到 manylinux 基线。
 
-For local development, the wheel build consumes the native library path from
-`TSP_SOLVER_PYTHON_NATIVE_LIBRARY`.
+本地开发时，wheel 构建会从 `TSP_SOLVER_PYTHON_NATIVE_LIBRARY` 获取原生库路径。

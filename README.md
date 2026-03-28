@@ -1,92 +1,87 @@
 # TSP Solver
 
-Portable C++ framework for solving the traveling salesman problem.
+面向旅行商问题的可移植 C++ 框架。
 
-This repository is organized for long-term extension:
-- a native C++ core for problem models and solver logic
-- algorithm modules that can grow from local search into richer heuristics
-- thin Python and Java bindings built on top of a stable native API
+这个仓库按长期扩展来组织：
+- 一个原生 C++ 核心，用于问题建模和求解逻辑
+- 可从局部搜索逐步扩展到更丰富启发式算法的算法模块
+- 构建在稳定原生 API 之上的轻量 Python 和 Java 绑定
 
-## Project layout
+## 项目结构
 
-- `include/` - public headers for the native API
-- `src/` - core implementations and algorithm code
-- `tests/` - native tests
-- `bindings/` - Python and Java integration layers
-- `docs/` - workflow notes, branch protection guidance, and planning docs
+- `include/` - 原生 API 的公共头文件
+- `src/` - 核心实现和算法代码
+- `tests/` - 原生测试
+- `bindings/` - Python 和 Java 集成层
+- `docs/` - 工作流说明、分支保护建议和规划文档
 
-## Current state
+## 当前状态
 
-The repository currently provides:
-- a CMake-based native build
-- a first local-search solver implementation
-- algorithm selection surfaced through the native and binding APIs, including
-  a deterministic iterated local search metaheuristic
-- Python and Java bindings with package smoke coverage
-- GitHub Actions CI and release workflows
+仓库当前提供：
+- 基于 CMake 的原生构建
+- 通过共享 API 暴露多种算法的原生 C++ 求解核心
+- 通过发布产物消费的 Python 和 Java 绑定
+- GitHub Actions CI 和发布工作流
 
 ## C API
 
-The first public native boundary is available in `include/tsp_solver/c_api.h`.
-The library is configured to build as a shared library by default, with a stable
-C install package and exported target (`tsp_solver::tsp_solver`). For a short
-usage example and result-handling notes, see `docs/c_api.md`. Consumers can use
-`find_package(tsp_solver <release-version> EXACT CONFIG REQUIRED)` and link
-`tsp_solver::tsp_solver`.
+第一个公开的原生边界位于 `include/tsp_solver/c_api.h`。
+库默认构建为共享库，并提供稳定的 C 安装包和导出目标（`tsp_solver::tsp_solver`）。
+简短的用法示例和结果处理说明请见 `docs/c_api.md`。使用方可以通过
+`find_package(tsp_solver <release-version> EXACT CONFIG REQUIRED)` 并链接 `tsp_solver::tsp_solver`。
 
-## Compatibility Policy
+## 兼容性策略
 
-- C++ consumers should use the headers, CMake package files, and native library from the same release archive.
-- Python wheels must be used with the native library from the exact same release version.
-- Java API jars must be used with the JNI and native bundle from the exact same release version.
-- `TSP_SOLVER_ABI_VERSION` is maintainer-facing compatibility metadata; it is not currently a promise that different release artifacts can be mixed.
+- C++ 使用方应使用同一发布归档中的头文件、CMake 包文件和原生库。
+- Python wheel 必须与同一发布版本的原生库配套使用。
+- Java API jar 必须与同一发布版本的 JNI 和原生 bundle 配套使用。
+- `TSP_SOLVER_ABI_VERSION` 是面向维护者的兼容性元数据；它目前不代表不同发布产物可以混用。
 
-## Python bindings
+## Python 绑定
 
-The Python package lives under `bindings/python/tsp_solver` and wraps the C API.
-For local development, point `TSP_SOLVER_LIBRARY_PATH` at the built shared library
-and add `bindings/python` to `PYTHONPATH` before running:
+Python 包位于 `bindings/python/tsp_solver`，并封装了 C API。
+本地开发时，请将 `TSP_SOLVER_LIBRARY_PATH` 指向已构建的共享库，并在运行前把 `bindings/python`
+加入 `PYTHONPATH`：
 
 ```bash
 python -m unittest discover -s tests/python -p "test_*.py" -v
 ```
 
-Build a distributable wheel with:
+构建可分发的 wheel：
 
 ```bash
 cmake --build --preset <your-host-appropriate-preset> --target tsp_solver_python_wheel
 ```
 
-Use the wheel from the same release; platform wheels already bundle the matching native library.
+请使用与其他产物同一发布版本的 wheel；平台 wheel 已经内置了匹配的原生库。
 
-Current release wheels are built on GitHub-hosted runners and validated on the
-matching runner image. Linux wheels are not yet repaired to a manylinux policy.
+当前发布 wheel 在 GitHub 托管 runner 上构建，并在对应 runner 镜像上验证。
+Linux wheel 目前尚未修复到 manylinux 基线。
 
-## Java bindings
+## Java 绑定
 
-The Java bindings live under `bindings/java/` and are built through CMake as a
-thin JNI layer over the C API. Run the Java binding tests with:
+Java 绑定位于 `bindings/java/`，并通过 CMake 构建为位于 C API 之上的轻量 JNI 层。
+运行 Java 绑定测试：
 
 ```bash
 ctest --preset <your-host-appropriate-preset> --output-on-failure -R tsp_solver_java_tests
 ```
 
-For local development, point `TSP_SOLVER_JAVA_LIBRARY_PATH` at the built JNI
-bridge or pass `-Dtsp.solver.library.path=/absolute/path/to/tsp_solver_java_jni`.
+本地开发时，请将 `TSP_SOLVER_JAVA_LIBRARY_PATH` 指向已构建的 JNI 桥接库，或者传入
+`-Dtsp.solver.library.path=/absolute/path/to/tsp_solver_java_jni`。
 
-Build the release-oriented Java artifacts with:
+构建面向发布的 Java 产物：
 
 ```bash
 cmake --build --preset <your-host-appropriate-preset> --target tsp_solver_java_jar tsp_solver_java_native_bundle
 ```
 
-Use the Java API jar and native bundle from the same release.
+请使用同一发布版本的 Java API jar 和 native bundle。
 
-The Linux Java native bundle is currently validated on the matching
-`ubuntu-latest` runner image and does not claim a broader glibc compatibility
-baseline yet.
+Linux Java native bundle 当前在匹配的 `ubuntu-latest` runner 镜像上验证，
+尚未声明更广泛的 glibc 兼容基线。
 
-## Build and test
+## 构建与测试
 
 ```bash
 cmake --list-presets
@@ -95,29 +90,29 @@ cmake --build --preset <your-host-appropriate-preset>
 ctest --preset <your-host-appropriate-preset> --output-on-failure
 ```
 
-Run a single test with:
+运行单个测试：
 
 ```bash
 ctest --preset <your-host-appropriate-preset> --output-on-failure -R tsp_solver_tests
 ```
 
-Run the packaged binding smoke tests with:
+运行打包后的绑定冒烟测试：
 
 ```bash
 ctest --preset <your-host-appropriate-preset> --output-on-failure -R "tsp_solver_python_package_smoke|tsp_solver_java_package_smoke"
 ```
 
-## Workflow notes
+## 工作流说明
 
-- Branch protection recommendations live in `docs/branch-protection.md`.
-- CI is defined in `.github/workflows/ci.yml`.
-- Release packaging is defined in `.github/workflows/release.yml`.
-- Formatting is defined in `.clang-format`.
-- Static analysis defaults live in `.clang-tidy`.
+- 分支保护建议见 `docs/branch-protection.md`。
+- CI 定义在 `.github/workflows/ci.yml`。
+- 发布打包定义在 `.github/workflows/release.yml`。
+- 格式化规则定义在 `.clang-format`。
+- 静态分析默认配置位于 `.clang-tidy`。
 
-## Extension roadmap
+## 扩展路线图
 
-- expand local search with more neighborhood moves and better seeding
-- add more constructive and exact algorithms behind the shared algorithm enum
-- add shared solver abstractions for future metaheuristics
-- publish Python and Java binding artifacts alongside native release bundles
+- 扩展局部搜索，增加更多邻域移动和更好的初始种子
+- 在共享算法枚举之后加入更多构造型和精确算法
+- 为未来的元启发式加入共享求解器抽象
+- 与原生发布 bundle 一起发布 Python 和 Java 绑定产物
