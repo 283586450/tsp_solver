@@ -22,7 +22,10 @@ if(NOT DEFINED venv_dir)
   message(FATAL_ERROR "venv_dir is required")
 endif()
 
-file(REMOVE_RECURSE "${wheel_dir}" "${venv_dir}")
+set(source_build_dir "${source_dir}/build")
+set(source_egg_info_dir "${source_dir}/tsp_solver.egg-info")
+
+file(REMOVE_RECURSE "${wheel_dir}" "${venv_dir}" "${source_build_dir}" "${source_egg_info_dir}")
 file(MAKE_DIRECTORY "${wheel_dir}")
 
 execute_process(
@@ -67,3 +70,5 @@ execute_process(
 if(NOT smoke_result EQUAL 0)
   message(FATAL_ERROR "python package smoke test failed")
 endif()
+
+file(REMOVE_RECURSE "${source_build_dir}" "${source_egg_info_dir}")
