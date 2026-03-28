@@ -96,6 +96,7 @@ add_custom_command(
   VERBATIM)
 
 add_custom_target(tsp_solver_java_example_classes ALL DEPENDS ${TSP_SOLVER_JAVA_EXAMPLE_COMPILE_STAMP})
+add_dependencies(tsp_solver_java_example_classes tsp_solver_java_native_bundle)
 
 add_custom_command(
   OUTPUT ${TSP_SOLVER_JAVA_JAR}
@@ -193,16 +194,16 @@ add_test(
           -Djava_executable=${Java_JAVA_EXECUTABLE}
           -Djava_main_classes_dir=${TSP_SOLVER_JAVA_MAIN_CLASSES_DIR}
           -Djava_example_classes_dir=${TSP_SOLVER_JAVA_EXAMPLE_CLASSES_DIR}
-          -Djni_library_path=$<TARGET_FILE:tsp_solver_java_jni>
+          -Djni_library_path=${TSP_SOLVER_JAVA_NATIVE_BUNDLE_DIR}/$<TARGET_FILE_NAME:tsp_solver_java_jni>
           -P ${CMAKE_SOURCE_DIR}/tests/examples_java_smoke.cmake)
 
 if(WIN32)
   set_tests_properties(tsp_solver_examples_java_smoke PROPERTIES
-                       ENVIRONMENT "PATH=$<TARGET_FILE_DIR:tsp_solver_java_jni>;$<TARGET_FILE_DIR:tsp_solver>;$ENV{PATH}")
+                       ENVIRONMENT "PATH=${TSP_SOLVER_JAVA_NATIVE_BUNDLE_DIR};$<TARGET_FILE_DIR:tsp_solver_java_jni>;$<TARGET_FILE_DIR:tsp_solver>;$ENV{PATH}")
 elseif(APPLE)
   set_tests_properties(tsp_solver_examples_java_smoke PROPERTIES
-                       ENVIRONMENT "DYLD_LIBRARY_PATH=$<TARGET_FILE_DIR:tsp_solver_java_jni>:$<TARGET_FILE_DIR:tsp_solver>:$ENV{DYLD_LIBRARY_PATH}")
+                       ENVIRONMENT "DYLD_LIBRARY_PATH=${TSP_SOLVER_JAVA_NATIVE_BUNDLE_DIR}:$<TARGET_FILE_DIR:tsp_solver_java_jni>:$<TARGET_FILE_DIR:tsp_solver>:$ENV{DYLD_LIBRARY_PATH}")
 else()
   set_tests_properties(tsp_solver_examples_java_smoke PROPERTIES
-                       ENVIRONMENT "LD_LIBRARY_PATH=$<TARGET_FILE_DIR:tsp_solver_java_jni>:$<TARGET_FILE_DIR:tsp_solver>:$ENV{LD_LIBRARY_PATH}")
+                       ENVIRONMENT "LD_LIBRARY_PATH=${TSP_SOLVER_JAVA_NATIVE_BUNDLE_DIR}:$<TARGET_FILE_DIR:tsp_solver_java_jni>:$<TARGET_FILE_DIR:tsp_solver>:$ENV{LD_LIBRARY_PATH}")
 endif()

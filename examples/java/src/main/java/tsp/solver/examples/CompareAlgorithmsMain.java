@@ -3,7 +3,9 @@ package tsp.solver.examples;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import tsp.solver.Algorithm;
@@ -32,7 +34,7 @@ public final class CompareAlgorithmsMain {
     }
   }
 
-  private static final List<AlgorithmRun> RUNS = List.of(
+  private static final List<AlgorithmRun> RUNS = Arrays.asList(
       new AlgorithmRun("TSP_SOLVER_ALGORITHM_DEFAULT", Algorithm.DEFAULT),
       new AlgorithmRun("TSP_SOLVER_ALGORITHM_GREEDY_NEAREST_NEIGHBOR",
           Algorithm.GREEDY_NEAREST_NEIGHBOR),
@@ -47,7 +49,7 @@ public final class CompareAlgorithmsMain {
     }
 
     try {
-      Matrix matrix = loadMatrix(Path.of(args[0]));
+      Matrix matrix = loadMatrix(Paths.get(args[0]));
       try (Model model = buildModel(matrix); Options options = new Options()) {
         System.out.println("algorithm\tobjective\ttour");
         for (AlgorithmRun run : RUNS) {
