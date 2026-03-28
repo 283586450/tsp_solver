@@ -12,20 +12,21 @@ namespace tsp_solver {
 namespace {
 
 [[nodiscard]] std::vector<NodeId> build_nearest_neighbor_seed(const Problem& problem) {
-  const std::size_t n = problem.size();
+  const std::size_t node_count = problem.size();
   std::vector<NodeId> order;
-  order.reserve(n);
-  std::vector<std::uint8_t> visited(n, 0);
+  order.reserve(node_count);
+  std::vector<std::uint8_t> visited(node_count, 0);
 
   NodeId current = 0;
   order.push_back(current);
   visited[current] = 1;
 
-  for (std::size_t step = 1; step < n; ++step) {
+  for (std::size_t step = 1; step < node_count; ++step) {
     NodeId next = 0;
     Cost best_cost = std::numeric_limits<Cost>::max();
 
-    for (NodeId candidate = 0; candidate < static_cast<NodeId>(n); ++candidate) {
+    for (NodeId candidate = 0; candidate < static_cast<NodeId>(node_count);
+         ++candidate) {
       if (visited[candidate] != 0) {
         continue;
       }
@@ -62,13 +63,9 @@ namespace {
 } // namespace
 
 bool Problem::is_square() const noexcept {
-  const std::size_t n = distances.size();
-  for (const auto& row : distances) {
-    if (row.size() != n) {
-      return false;
-    }
-  }
-  return true;
+  const std::size_t node_count = distances.size();
+  return std::ranges::all_of(
+      distances, [node_count](const auto& row) { return row.size() == node_count; });
 }
 
 Cost compute_tour_cost(const Problem& problem, const Tour& tour) {
@@ -86,8 +83,8 @@ Tour TwoOptLocalSearch::solve(const Problem& problem) const {
     throw std::invalid_argument("problem distance matrix must be square");
   }
 
-  const std::size_t n = problem.size();
-  if (n == 0) {
+  const std::size_t node_count = problem.size();
+  if (node_count == 0) {
     return {};
   }
 
@@ -98,8 +95,8 @@ Tour TwoOptLocalSearch::solve(const Problem& problem) const {
   bool improved = true;
   while (improved) {
     improved = false;
-    for (std::size_t i = 1; i + 1 < n; ++i) {
-      for (std::size_t k = i + 1; k < n; ++k) {
+    for (std::size_t i = 1; i + 1 < node_count; ++i) {
+      for (std::size_t k = i + 1; k < node_count; ++k) {
         std::vector<NodeId> candidate = best.order;
         std::reverse(candidate.begin() + static_cast<std::ptrdiff_t>(i),
                      candidate.begin() + static_cast<std::ptrdiff_t>(k) + 1);
