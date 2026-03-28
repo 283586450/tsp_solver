@@ -38,11 +38,61 @@ public final class BindingTestMain {
 
       try (Result result = model.solve(options)) {
         assertEquals(Status.FEASIBLE, result.getStatus(), "status");
+        assertEquals(Algorithm.LOCAL_SEARCH_2OPT, result.getAlgorithm(), "algorithm");
         assertEquals(4, result.getTourSize(), "tour size");
         int[] tour = result.getTour();
         Arrays.sort(tour);
         assertTrue(Arrays.equals(tour, new int[] {0, 1, 2, 3}), "tour permutation");
         assertTrue(result.getObjective() >= 0, "objective should be non-negative");
+      }
+
+      options.setAlgorithm(Algorithm.DEFAULT);
+      try (Result result = model.solve(options)) {
+        assertEquals(Algorithm.LOCAL_SEARCH_2OPT, result.getAlgorithm(), "default algorithm");
+      }
+
+      options.setAlgorithm(Algorithm.GREEDY_NEAREST_NEIGHBOR);
+      try (Result result = model.solve(options)) {
+        assertEquals(Status.FEASIBLE, result.getStatus(), "status");
+        assertEquals(Algorithm.GREEDY_NEAREST_NEIGHBOR, result.getAlgorithm(), "algorithm");
+        assertEquals(4, result.getTourSize(), "tour size");
+        int[] tour = result.getTour();
+        Arrays.sort(tour);
+        assertTrue(Arrays.equals(tour, new int[] {0, 1, 2, 3}), "tour permutation");
+      }
+
+      options.setAlgorithm(Algorithm.GREEDY_CHEAPEST_INSERTION);
+      try (Result result = model.solve(options)) {
+        assertEquals(Status.FEASIBLE, result.getStatus(), "status");
+        assertEquals(
+            Algorithm.GREEDY_CHEAPEST_INSERTION, result.getAlgorithm(), "algorithm");
+        assertEquals(4, result.getTourSize(), "tour size");
+      }
+
+      options.setAlgorithm(Algorithm.GREEDY_NEAREST_NEIGHBOR);
+      options.setRandomSeed(42);
+      long seedObjective;
+      try (Result result = model.solve(options)) {
+        seedObjective = result.getObjective();
+      }
+
+      options.setAlgorithm(Algorithm.METAHEURISTIC_ITERATED_LOCAL_SEARCH);
+      options.setRandomSeed(42);
+      try (Result result = model.solve(options)) {
+        assertEquals(Status.FEASIBLE, result.getStatus(), "status");
+        assertEquals(
+            Algorithm.METAHEURISTIC_ITERATED_LOCAL_SEARCH, result.getAlgorithm(),
+            "algorithm");
+        assertEquals(4, result.getTourSize(), "tour size");
+        assertTrue(result.getObjective() <= seedObjective, "objective should not exceed seed");
+      }
+
+      options.setAlgorithm(Algorithm.HELD_KARP);
+      try (Result result = model.solve(options)) {
+        assertEquals(Status.OPTIMAL, result.getStatus(), "status");
+        assertEquals(Algorithm.HELD_KARP, result.getAlgorithm(), "algorithm");
+        assertEquals(4, result.getTourSize(), "tour size");
+        assertEquals(21L, result.getObjective(), "objective");
       }
     }
   }

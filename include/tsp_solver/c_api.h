@@ -43,6 +43,10 @@ typedef enum tsp_solver_status {
 typedef enum tsp_solver_algorithm {
   TSP_SOLVER_ALGORITHM_DEFAULT = 0,
   TSP_SOLVER_ALGORITHM_LOCAL_SEARCH_2OPT,
+  TSP_SOLVER_ALGORITHM_GREEDY_NEAREST_NEIGHBOR,
+  TSP_SOLVER_ALGORITHM_GREEDY_CHEAPEST_INSERTION,
+  TSP_SOLVER_ALGORITHM_HELD_KARP,
+  TSP_SOLVER_ALGORITHM_METAHEURISTIC_ITERATED_LOCAL_SEARCH,
 } tsp_solver_algorithm_t;
 
 TSP_SOLVER_API const char* tsp_solver_version_string(void);
@@ -75,6 +79,8 @@ tsp_solver_solve(const tsp_solver_model_t* model, const tsp_solver_options_t* op
 TSP_SOLVER_API void tsp_solver_result_destroy(tsp_solver_result_t* result);
 TSP_SOLVER_API tsp_solver_error_code_t tsp_solver_result_get_status(
     const tsp_solver_result_t* result, tsp_solver_status_t* out_status);
+TSP_SOLVER_API tsp_solver_error_code_t tsp_solver_result_get_algorithm(
+    const tsp_solver_result_t* result, tsp_solver_algorithm_t* out_algorithm);
 TSP_SOLVER_API tsp_solver_error_code_t tsp_solver_result_get_objective(
     const tsp_solver_result_t* result, tsp_solver_cost_t* out_objective);
 TSP_SOLVER_API tsp_solver_error_code_t

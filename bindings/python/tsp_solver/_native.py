@@ -50,9 +50,21 @@ def _check_loaded_version(library: ctypes.CDLL) -> ctypes.CDLL:
     return library
 
 
+def _load_library_with_dependency_dir(path: str) -> ctypes.CDLL:
+    if os.name == "nt" and hasattr(os, "add_dll_directory"):
+        directory = str(Path(path).resolve().parent)
+        with os.add_dll_directory(directory):
+            return ctypes.CDLL(path)
+    return ctypes.CDLL(path)
+
+
 class Algorithm(enum.IntEnum):
     DEFAULT = 0
     LOCAL_SEARCH_2OPT = 1
+    GREEDY_NEAREST_NEIGHBOR = 2
+    GREEDY_CHEAPEST_INSERTION = 3
+    HELD_KARP = 4
+    METAHEURISTIC_ITERATED_LOCAL_SEARCH = 5
 
 
 class Status(enum.IntEnum):
@@ -105,7 +117,9 @@ def load_library() -> ctypes.CDLL:
     if env_path:
         attempts.append(f"TSP_SOLVER_LIBRARY_PATH={env_path!r}")
         try:
-            _library = _check_loaded_version(ctypes.CDLL(env_path))
+            _library = _check_loaded_version(
+                _load_library_with_dependency_dir(env_path)
+            )
             return _library
         except OSError as exc:
             env_error = exc
@@ -129,7 +143,7 @@ def load_library() -> ctypes.CDLL:
     if found:
         attempts.append(f"ctypes.util.find_library({_LIBRARY_NAME!r}) -> {found!r}")
         try:
-            _library = _check_loaded_version(ctypes.CDLL(found))
+            _library = _check_loaded_version(_load_library_with_dependency_dir(found))
             return _library
         except OSError as exc:
             find_error = exc

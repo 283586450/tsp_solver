@@ -44,6 +44,11 @@ int main() {
   tsp_solver_options_t* options = nullptr;
   tsp_solver_result_t* result = nullptr;
   tsp_solver_result_t* default_result = nullptr;
+  tsp_solver_result_t* nn_result = nullptr;
+  tsp_solver_result_t* ci_result = nullptr;
+  tsp_solver_result_t* ils_result = nullptr;
+  tsp_solver_result_t* hk_result = nullptr;
+  tsp_solver_result_t* oversized_result = nullptr;
   tsp_solver_result_t* time_limit_result = nullptr;
   tsp_solver_result_t* empty_result = nullptr;
 
@@ -91,11 +96,15 @@ int main() {
 
   tsp_solver_status_t status = TSP_SOLVER_STATUS_NOT_SOLVED;
   tsp_solver_cost_t objective = 0;
+  tsp_solver_cost_t nn_objective = 0;
   std::size_t tour_size = 0;
+  tsp_solver_algorithm_t algorithm = TSP_SOLVER_ALGORITHM_DEFAULT;
   assert(tsp_solver_result_get_status(result, &status) == TSP_SOLVER_ERROR_OK);
+  assert(tsp_solver_result_get_algorithm(result, &algorithm) == TSP_SOLVER_ERROR_OK);
   assert(tsp_solver_result_get_objective(result, &objective) == TSP_SOLVER_ERROR_OK);
   assert(tsp_solver_result_get_tour_size(result, &tour_size) == TSP_SOLVER_ERROR_OK);
   assert(status == TSP_SOLVER_STATUS_FEASIBLE);
+  assert(algorithm == TSP_SOLVER_ALGORITHM_LOCAL_SEARCH_2OPT);
   assert(tour_size == 4);
 
   std::vector<tsp_solver_node_id_t> tour(tour_size);
@@ -111,18 +120,109 @@ int main() {
   assert((sorted_tour == std::vector<tsp_solver_node_id_t>{0, 1, 2, 3}));
   assert(objective == tour_cost(distances, tour));
 
-  assert(tsp_solver_options_set_algorithm(options, TSP_SOLVER_ALGORITHM_DEFAULT) ==
+  assert(tsp_solver_options_set_algorithm(
+             options, TSP_SOLVER_ALGORITHM_GREEDY_NEAREST_NEIGHBOR) ==
          TSP_SOLVER_ERROR_OK);
-  assert(tsp_solver_solve(model, options, &default_result) == TSP_SOLVER_ERROR_OK);
+  assert(tsp_solver_solve(model, options, &nn_result) == TSP_SOLVER_ERROR_OK);
 
   tsp_solver_status_t default_status = TSP_SOLVER_STATUS_NOT_SOLVED;
   tsp_solver_cost_t default_objective = 0;
+  std::vector<tsp_solver_node_id_t> nn_tour;
+  assert(tsp_solver_result_get_status(nn_result, &default_status) ==
+         TSP_SOLVER_ERROR_OK);
+  assert(tsp_solver_result_get_algorithm(nn_result, &algorithm) == TSP_SOLVER_ERROR_OK);
+  assert(tsp_solver_result_get_objective(nn_result, &nn_objective) ==
+         TSP_SOLVER_ERROR_OK);
+  assert(default_status == TSP_SOLVER_STATUS_FEASIBLE);
+  assert(algorithm == TSP_SOLVER_ALGORITHM_GREEDY_NEAREST_NEIGHBOR);
+  nn_tour.resize(tsp_solver_result_get_tour_size(nn_result, &tour_size) ==
+                         TSP_SOLVER_ERROR_OK
+                     ? tour_size
+                     : 0);
+  assert(!nn_tour.empty());
+  assert(tsp_solver_result_get_tour(nn_result, nn_tour.data(), nn_tour.size(),
+                                    &written) == TSP_SOLVER_ERROR_OK);
+  assert(nn_objective == tour_cost(distances, nn_tour));
+
+  assert(tsp_solver_options_set_algorithm(options, TSP_SOLVER_ALGORITHM_DEFAULT) ==
+         TSP_SOLVER_ERROR_OK);
+  assert(tsp_solver_solve(model, options, &default_result) == TSP_SOLVER_ERROR_OK);
   assert(tsp_solver_result_get_status(default_result, &default_status) ==
+         TSP_SOLVER_ERROR_OK);
+  assert(tsp_solver_result_get_algorithm(default_result, &algorithm) ==
          TSP_SOLVER_ERROR_OK);
   assert(tsp_solver_result_get_objective(default_result, &default_objective) ==
          TSP_SOLVER_ERROR_OK);
+  assert(tsp_solver_result_get_tour_size(default_result, &tour_size) ==
+         TSP_SOLVER_ERROR_OK);
   assert(default_status == TSP_SOLVER_STATUS_FEASIBLE);
+  assert(algorithm == TSP_SOLVER_ALGORITHM_LOCAL_SEARCH_2OPT);
+  assert(tour_size == 4);
   assert(default_objective == objective);
+
+  assert(tsp_solver_options_set_algorithm(
+             options, TSP_SOLVER_ALGORITHM_GREEDY_CHEAPEST_INSERTION) ==
+         TSP_SOLVER_ERROR_OK);
+  assert(tsp_solver_solve(model, options, &ci_result) == TSP_SOLVER_ERROR_OK);
+  assert(tsp_solver_result_get_status(ci_result, &default_status) ==
+         TSP_SOLVER_ERROR_OK);
+  assert(tsp_solver_result_get_algorithm(ci_result, &algorithm) == TSP_SOLVER_ERROR_OK);
+  assert(tsp_solver_result_get_tour_size(ci_result, &tour_size) == TSP_SOLVER_ERROR_OK);
+  assert(default_status == TSP_SOLVER_STATUS_FEASIBLE);
+  assert(algorithm == TSP_SOLVER_ALGORITHM_GREEDY_CHEAPEST_INSERTION);
+  assert(tour_size == 4);
+
+  assert(tsp_solver_options_set_algorithm(
+             options, TSP_SOLVER_ALGORITHM_METAHEURISTIC_ITERATED_LOCAL_SEARCH) ==
+         TSP_SOLVER_ERROR_OK);
+  assert(tsp_solver_options_set_random_seed(options, 42) == TSP_SOLVER_ERROR_OK);
+  assert(tsp_solver_solve(model, options, &ils_result) == TSP_SOLVER_ERROR_OK);
+  assert(tsp_solver_result_get_status(ils_result, &default_status) ==
+         TSP_SOLVER_ERROR_OK);
+  assert(tsp_solver_result_get_algorithm(ils_result, &algorithm) ==
+         TSP_SOLVER_ERROR_OK);
+  assert(tsp_solver_result_get_objective(ils_result, &default_objective) ==
+         TSP_SOLVER_ERROR_OK);
+  assert(tsp_solver_result_get_tour_size(ils_result, &tour_size) ==
+         TSP_SOLVER_ERROR_OK);
+  assert(default_status == TSP_SOLVER_STATUS_FEASIBLE);
+  assert(algorithm == TSP_SOLVER_ALGORITHM_METAHEURISTIC_ITERATED_LOCAL_SEARCH);
+  assert(tour_size == 4);
+  assert(default_objective <= nn_objective);
+
+  assert(tsp_solver_options_set_algorithm(options, TSP_SOLVER_ALGORITHM_HELD_KARP) ==
+         TSP_SOLVER_ERROR_OK);
+  assert(tsp_solver_solve(model, options, &hk_result) == TSP_SOLVER_ERROR_OK);
+  assert(tsp_solver_result_get_status(hk_result, &default_status) ==
+         TSP_SOLVER_ERROR_OK);
+  assert(tsp_solver_result_get_algorithm(hk_result, &algorithm) == TSP_SOLVER_ERROR_OK);
+  assert(tsp_solver_result_get_objective(hk_result, &default_objective) ==
+         TSP_SOLVER_ERROR_OK);
+  assert(tsp_solver_result_get_tour_size(hk_result, &tour_size) == TSP_SOLVER_ERROR_OK);
+  assert(default_status == TSP_SOLVER_STATUS_OPTIMAL);
+  assert(algorithm == TSP_SOLVER_ALGORITHM_HELD_KARP);
+  assert(default_objective == 21);
+  assert(tour_size == 4);
+
+  tsp_solver_model_t* oversized_model = nullptr;
+  assert(tsp_solver_model_create(&oversized_model) == TSP_SOLVER_ERROR_OK);
+  tsp_solver_node_id_t oversized_ids[19] = {};
+  for (std::size_t index = 0; index < 19; ++index) {
+    assert(tsp_solver_model_add_node(oversized_model, &oversized_ids[index]) ==
+           TSP_SOLVER_ERROR_OK);
+  }
+  for (tsp_solver_node_id_t from = 0; from < 19; ++from) {
+    for (tsp_solver_node_id_t to = 0; to < 19; ++to) {
+      assert(tsp_solver_model_set_distance(oversized_model, from, to, 0) ==
+             TSP_SOLVER_ERROR_OK);
+    }
+  }
+  assert(tsp_solver_model_validate(oversized_model) == TSP_SOLVER_ERROR_OK);
+  assert(tsp_solver_solve(oversized_model, options, &oversized_result) ==
+         TSP_SOLVER_ERROR_OUT_OF_RANGE);
+
+  assert(tsp_solver_options_set_algorithm(options, TSP_SOLVER_ALGORITHM_DEFAULT) ==
+         TSP_SOLVER_ERROR_OK);
 
   assert(tsp_solver_solve(empty_model, options, &empty_result) == TSP_SOLVER_ERROR_OK);
   assert(tsp_solver_result_get_status(empty_result, &default_status) ==
@@ -134,11 +234,17 @@ int main() {
 
   tsp_solver_result_destroy(result);
   tsp_solver_result_destroy(default_result);
+  tsp_solver_result_destroy(nn_result);
+  tsp_solver_result_destroy(ci_result);
+  tsp_solver_result_destroy(ils_result);
+  tsp_solver_result_destroy(hk_result);
+  tsp_solver_result_destroy(oversized_result);
   tsp_solver_result_destroy(empty_result);
   tsp_solver_result_destroy(time_limit_result);
   tsp_solver_options_destroy(options);
   tsp_solver_model_destroy(incomplete_model);
   tsp_solver_model_destroy(empty_model);
+  tsp_solver_model_destroy(oversized_model);
   tsp_solver_model_destroy(model);
   return 0;
 }

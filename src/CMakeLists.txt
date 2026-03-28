@@ -1,5 +1,6 @@
 target_sources(tsp_solver
   PRIVATE
+    algorithms/held_karp.cpp
     algorithms/local_search.cpp
     c_api.cpp)
 

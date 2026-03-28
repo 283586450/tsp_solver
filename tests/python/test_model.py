@@ -38,10 +38,82 @@ class ModelBindingTest(unittest.TestCase):
             result = model.solve(options)
             try:
                 self.assertEqual(result.status, tsp_solver.Status.FEASIBLE)
+                self.assertEqual(
+                    result.algorithm, tsp_solver.Algorithm.LOCAL_SEARCH_2OPT
+                )
                 self.assertEqual(result.tour_size, 4)
                 self.assertEqual(sorted(result.tour), [0, 1, 2, 3])
                 self.assertIsInstance(result.objective, int)
                 self.assertGreaterEqual(result.objective, 0)
+            finally:
+                result.close()
+
+            options.algorithm = tsp_solver.Algorithm.DEFAULT
+            result = model.solve(options)
+            try:
+                self.assertEqual(
+                    result.algorithm, tsp_solver.Algorithm.LOCAL_SEARCH_2OPT
+                )
+            finally:
+                result.close()
+
+            options.algorithm = tsp_solver.Algorithm.GREEDY_NEAREST_NEIGHBOR
+            result = model.solve(options)
+            try:
+                self.assertEqual(result.status, tsp_solver.Status.FEASIBLE)
+                self.assertEqual(
+                    result.algorithm,
+                    tsp_solver.Algorithm.GREEDY_NEAREST_NEIGHBOR,
+                )
+                self.assertEqual(result.tour_size, 4)
+                self.assertEqual(sorted(result.tour), [0, 1, 2, 3])
+            finally:
+                result.close()
+
+            options.algorithm = tsp_solver.Algorithm.GREEDY_CHEAPEST_INSERTION
+            result = model.solve(options)
+            try:
+                self.assertEqual(result.status, tsp_solver.Status.FEASIBLE)
+                self.assertEqual(
+                    result.algorithm,
+                    tsp_solver.Algorithm.GREEDY_CHEAPEST_INSERTION,
+                )
+                self.assertEqual(result.tour_size, 4)
+                self.assertEqual(sorted(result.tour), [0, 1, 2, 3])
+            finally:
+                result.close()
+
+            options.algorithm = tsp_solver.Algorithm.GREEDY_NEAREST_NEIGHBOR
+            options.random_seed = 42
+            seed_result = model.solve(options)
+            try:
+                seed_objective = seed_result.objective
+            finally:
+                seed_result.close()
+
+            options.algorithm = tsp_solver.Algorithm.METAHEURISTIC_ITERATED_LOCAL_SEARCH
+            options.random_seed = 42
+            result = model.solve(options)
+            try:
+                self.assertEqual(result.status, tsp_solver.Status.FEASIBLE)
+                self.assertEqual(
+                    result.algorithm,
+                    tsp_solver.Algorithm.METAHEURISTIC_ITERATED_LOCAL_SEARCH,
+                )
+                self.assertEqual(result.tour_size, 4)
+                self.assertEqual(sorted(result.tour), [0, 1, 2, 3])
+                self.assertLessEqual(result.objective, seed_objective)
+            finally:
+                result.close()
+
+            options.algorithm = tsp_solver.Algorithm.HELD_KARP
+            result = model.solve(options)
+            try:
+                self.assertEqual(result.status, tsp_solver.Status.OPTIMAL)
+                self.assertEqual(result.algorithm, tsp_solver.Algorithm.HELD_KARP)
+                self.assertEqual(result.tour_size, 4)
+                self.assertEqual(result.objective, 21)
+                self.assertEqual(sorted(result.tour), [0, 1, 2, 3])
             finally:
                 result.close()
         finally:
