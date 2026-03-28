@@ -5,8 +5,8 @@
 #include <fstream>
 #include <iostream>
 #include <string>
-#include <vector>
 #include <utility>
+#include <vector>
 
 namespace {
 
@@ -95,7 +95,8 @@ bool build_model(const Matrix& matrix, tsp_solver_model_t** out_model,
   for (std::size_t row = 0; row < matrix.size; ++row) {
     for (std::size_t col = 0; col < matrix.size; ++col) {
       if (tsp_solver_model_set_distance(model, node_ids->at(row), node_ids->at(col),
-                                        matrix.values[row][col]) != TSP_SOLVER_ERROR_OK) {
+                                        matrix.values[row][col]) !=
+          TSP_SOLVER_ERROR_OK) {
         *error = "failed to set distance";
         tsp_solver_model_destroy(model);
         return false;
@@ -127,9 +128,8 @@ bool print_solution(tsp_solver_algorithm_t requested_algorithm,
 
   std::vector<tsp_solver_node_id_t> tour(tour_size);
   std::size_t written = 0;
-  if (tour_size > 0 &&
-      tsp_solver_result_get_tour(result, tour.data(), tour.size(), &written) !=
-          TSP_SOLVER_ERROR_OK) {
+  if (tour_size > 0 && tsp_solver_result_get_tour(result, tour.data(), tour.size(),
+                                                  &written) != TSP_SOLVER_ERROR_OK) {
     return false;
   }
 
@@ -199,9 +199,11 @@ int main(int argc, char** argv) {
   bool ok = true;
   ok = run_algorithm(model, TSP_SOLVER_ALGORITHM_DEFAULT, std::cout, &error) && ok;
   ok = run_algorithm(model, TSP_SOLVER_ALGORITHM_GREEDY_NEAREST_NEIGHBOR, std::cout,
-                     &error) && ok;
-  ok = run_algorithm(model, TSP_SOLVER_ALGORITHM_LOCAL_SEARCH_2OPT, std::cout, &error) &&
+                     &error) &&
        ok;
+  ok =
+      run_algorithm(model, TSP_SOLVER_ALGORITHM_LOCAL_SEARCH_2OPT, std::cout, &error) &&
+      ok;
 
   tsp_solver_model_destroy(model);
 
