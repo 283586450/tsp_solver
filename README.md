@@ -12,7 +12,7 @@ This repository is organized for long-term extension:
 - `include/` - public headers for the native API
 - `src/` - core implementations and algorithm code
 - `tests/` - native tests
-- `bindings/` - future Python and Java integration layers
+- `bindings/` - Python and Java integration layers
 - `docs/` - workflow notes, branch protection guidance, and planning docs
 
 ## Current state
@@ -20,7 +20,7 @@ This repository is organized for long-term extension:
 The repository currently provides:
 - a CMake-based native build
 - a first local-search solver implementation
-- a minimal test target
+- Python and Java bindings with package smoke coverage
 - GitHub Actions CI and release workflows
 
 ## C API
@@ -41,6 +41,15 @@ and add `bindings/python` to `PYTHONPATH` before running:
 python -m unittest discover -s tests/python -p "test_*.py" -v
 ```
 
+Build a distributable wheel with:
+
+```bash
+cmake --build --preset <your-host-appropriate-preset> --target tsp_solver_python_wheel
+```
+
+Current release wheels are built on GitHub-hosted runners and validated on the
+matching runner image. Linux wheels are not yet repaired to a manylinux policy.
+
 ## Java bindings
 
 The Java bindings live under `bindings/java/` and are built through CMake as a
@@ -52,6 +61,16 @@ ctest --preset <your-host-appropriate-preset> --output-on-failure -R tsp_solver_
 
 For local development, point `TSP_SOLVER_JAVA_LIBRARY_PATH` at the built JNI
 bridge or pass `-Dtsp.solver.library.path=/absolute/path/to/tsp_solver_java_jni`.
+
+Build the release-oriented Java artifacts with:
+
+```bash
+cmake --build --preset <your-host-appropriate-preset> --target tsp_solver_java_jar tsp_solver_java_native_bundle
+```
+
+The Linux Java native bundle is currently validated on the matching
+`ubuntu-latest` runner image and does not claim a broader glibc compatibility
+baseline yet.
 
 ## Build and test
 
@@ -68,6 +87,12 @@ Run a single test with:
 ctest --preset <your-host-appropriate-preset> --output-on-failure -R tsp_solver_tests
 ```
 
+Run the packaged binding smoke tests with:
+
+```bash
+ctest --preset <your-host-appropriate-preset> --output-on-failure -R "tsp_solver_python_package_smoke|tsp_solver_java_package_smoke"
+```
+
 ## Workflow notes
 
 - Branch protection recommendations live in `docs/branch-protection.md`.
@@ -80,5 +105,4 @@ ctest --preset <your-host-appropriate-preset> --output-on-failure -R tsp_solver_
 
 - expand local search with more neighborhood moves and better seeding
 - add shared solver abstractions for future metaheuristics
-- expose a stable C API for Python and Java bindings
-- package native artifacts for release distribution
+- publish Python and Java binding artifacts alongside native release bundles

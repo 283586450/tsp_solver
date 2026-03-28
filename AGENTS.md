@@ -44,6 +44,12 @@ cmake --build --preset <your-host-appropriate-preset>
 ctest --preset <your-host-appropriate-preset> --output-on-failure
 ```
 
+Build binding distribution artifacts with:
+
+```bash
+cmake --build --preset <your-host-appropriate-preset> --target tsp_solver_python_wheel tsp_solver_java_jar tsp_solver_java_native_bundle
+```
+
 For a clean rebuild, remove the build directory instead of editing generated files.
 
 ## Test Commands
@@ -52,6 +58,12 @@ Prefer `ctest` for native tests:
 
 ```bash
 ctest --preset <your-host-appropriate-preset> --output-on-failure
+```
+
+Run the packaged binding smoke tests with:
+
+```bash
+ctest --preset <your-host-appropriate-preset> --output-on-failure -R "tsp_solver_python_package_smoke|tsp_solver_java_package_smoke"
 ```
 
 Run a single C++ test by name:
