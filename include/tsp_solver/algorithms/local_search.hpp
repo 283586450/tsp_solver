@@ -6,14 +6,14 @@
 namespace tsp_solver {
 
 class LocalSearchSolver {
- public:
+public:
   virtual ~LocalSearchSolver() = default;
   [[nodiscard]] virtual Tour solve(const Problem& problem) const = 0;
 };
 
 class TwoOptLocalSearch final : public LocalSearchSolver {
- public:
+public:
   [[nodiscard]] Tour solve(const Problem& problem) const override;
 };
 
-}  // namespace tsp_solver
+} // namespace tsp_solver

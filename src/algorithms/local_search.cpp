@@ -11,8 +11,7 @@
 namespace tsp_solver {
 namespace {
 
-[[nodiscard]] std::vector<NodeId> build_nearest_neighbor_seed(
-    const Problem& problem) {
+[[nodiscard]] std::vector<NodeId> build_nearest_neighbor_seed(const Problem& problem) {
   const std::size_t n = problem.size();
   std::vector<NodeId> order;
   order.reserve(n);
@@ -32,8 +31,7 @@ namespace {
       }
 
       const Cost edge_cost = problem.distances[current][candidate];
-      if (edge_cost < best_cost ||
-          (edge_cost == best_cost && candidate < next)) {
+      if (edge_cost < best_cost || (edge_cost == best_cost && candidate < next)) {
         best_cost = edge_cost;
         next = candidate;
       }
@@ -61,7 +59,7 @@ namespace {
   return total;
 }
 
-}  // namespace
+} // namespace
 
 bool Problem::is_square() const noexcept {
   const std::size_t n = distances.size();
@@ -123,4 +121,4 @@ Tour TwoOptLocalSearch::solve(const Problem& problem) const {
   return best;
 }
 
-}  // namespace tsp_solver
+} // namespace tsp_solver
