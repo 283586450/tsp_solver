@@ -16,7 +16,7 @@ public final class NativeLibrary {
       }
 
       String propertyPath = System.getProperty("tsp.solver.library.path");
-      String envPath = System.getenv("TSP_SOLVER_LIBRARY_PATH");
+      String envPath = System.getenv("TSP_SOLVER_JAVA_LIBRARY_PATH");
       UnsatisfiedLinkError failure = null;
 
       try {
@@ -37,7 +37,7 @@ public final class NativeLibrary {
       if (propertyPath != null && !propertyPath.isEmpty()) {
         message.append(" from system property tsp.solver.library.path=").append(propertyPath);
       } else if (envPath != null && !envPath.isEmpty()) {
-        message.append(" from TSP_SOLVER_LIBRARY_PATH=").append(envPath);
+        message.append(" from TSP_SOLVER_JAVA_LIBRARY_PATH=").append(envPath);
       } else {
         message.append(" via System.loadLibrary(tsp_solver_java_jni)");
       }

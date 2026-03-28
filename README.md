@@ -50,6 +50,9 @@ thin JNI layer over the C API. Run the Java binding tests with:
 ctest --preset <your-host-appropriate-preset> --output-on-failure -R tsp_solver_java_tests
 ```
 
+For local development, point `TSP_SOLVER_JAVA_LIBRARY_PATH` at the built JNI
+bridge or pass `-Dtsp.solver.library.path=/absolute/path/to/tsp_solver_java_jni`.
+
 ## Build and test
 
 ```bash

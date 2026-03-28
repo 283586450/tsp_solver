@@ -59,6 +59,9 @@ class ModelBindingTest(unittest.TestCase):
 
             with self.assertRaises(IndexError):
                 model.set_distance(2, 0, 5)
+
+            with self.assertRaises(OverflowError):
+                model.set_distance(2**32, 0, 5)
         finally:
             model.close()
 

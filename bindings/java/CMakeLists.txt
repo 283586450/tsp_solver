@@ -43,6 +43,7 @@ target_link_libraries(tsp_solver_java_jni PRIVATE tsp_solver)
 if(WIN32)
   set(_tsp_solver_java_test_path
       "PATH=$<TARGET_FILE_DIR:tsp_solver_java_jni>\;$<TARGET_FILE_DIR:tsp_solver>\;$ENV{PATH}")
+  set(_tsp_solver_java_env_test_path "PATH=$<TARGET_FILE_DIR:tsp_solver>\;$ENV{PATH}")
   add_test(
     NAME tsp_solver_java_tests
     COMMAND ${CMAKE_COMMAND} -E env
@@ -51,11 +52,28 @@ if(WIN32)
             -Dtsp.solver.library.path=$<TARGET_FILE:tsp_solver_java_jni>
             -cp ${TSP_SOLVER_JAVA_CLASSES_DIR}
             tsp.solver.BindingTestMain)
+  add_test(
+    NAME tsp_solver_java_tests_env
+    COMMAND ${CMAKE_COMMAND} -E env
+            "${_tsp_solver_java_env_test_path}"
+            "TSP_SOLVER_LIBRARY_PATH=$<TARGET_FILE:tsp_solver>"
+            "TSP_SOLVER_JAVA_LIBRARY_PATH=$<TARGET_FILE:tsp_solver_java_jni>"
+            ${Java_JAVA_EXECUTABLE}
+            -cp ${TSP_SOLVER_JAVA_CLASSES_DIR}
+            tsp.solver.BindingTestMain)
 else()
   add_test(
     NAME tsp_solver_java_tests
     COMMAND ${Java_JAVA_EXECUTABLE}
             -Dtsp.solver.library.path=$<TARGET_FILE:tsp_solver_java_jni>
+            -cp ${TSP_SOLVER_JAVA_CLASSES_DIR}
+            tsp.solver.BindingTestMain)
+  add_test(
+    NAME tsp_solver_java_tests_env
+    COMMAND ${CMAKE_COMMAND} -E env
+            TSP_SOLVER_LIBRARY_PATH=$<TARGET_FILE:tsp_solver>
+            TSP_SOLVER_JAVA_LIBRARY_PATH=$<TARGET_FILE:tsp_solver_java_jni>
+            ${Java_JAVA_EXECUTABLE}
             -cp ${TSP_SOLVER_JAVA_CLASSES_DIR}
             tsp.solver.BindingTestMain)
 endif()

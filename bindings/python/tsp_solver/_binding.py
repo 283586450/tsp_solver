@@ -43,6 +43,7 @@ class _ErrorCode(enum.IntEnum):
 
 
 _UINT64_MAX: Final[int] = (1 << 64) - 1
+_UINT32_MAX: Final[int] = (1 << 32) - 1
 _INT64_MIN: Final[int] = -(1 << 63)
 _INT64_MAX: Final[int] = (1 << 63) - 1
 
@@ -152,6 +153,14 @@ def _coerce_int64(value: int, name: str) -> int:
     return value
 
 
+def _coerce_node_id(value: int, name: str) -> int:
+    if not isinstance(value, int):
+        raise TypeError(f"{name} must be an integer")
+    if value < 0 or value > _UINT32_MAX:
+        raise OverflowError(f"{name} must be between 0 and {_UINT32_MAX}")
+    return value
+
+
 class _NativeResource:
     __slots__ = ("_handle",)
 
@@ -214,8 +223,8 @@ class Model(_NativeResource):
 
     def set_distance(self, from_node: int, to_node: int, distance: int) -> None:
         handle = self._require_handle()
-        from_node = int(from_node)
-        to_node = int(to_node)
+        from_node = _coerce_node_id(from_node, "from_node")
+        to_node = _coerce_node_id(to_node, "to_node")
         distance = _coerce_int64(distance, "distance")
         _raise_for_error(
             _load_library().tsp_solver_model_set_distance(
