@@ -21,6 +21,10 @@ __all__ = [
 class Algorithm(enum.IntEnum):
     DEFAULT = 0
     LOCAL_SEARCH_2OPT = 1
+    GREEDY_NEAREST_NEIGHBOR = 2
+    GREEDY_CHEAPEST_INSERTION = 3
+    HELD_KARP = 4
+    METAHEURISTIC_ITERATED_LOCAL_SEARCH = 5
 
 
 class Status(enum.IntEnum):
@@ -101,6 +105,8 @@ def _configure_library(library: ctypes.CDLL) -> None:
 
     library.tsp_solver_result_destroy.argtypes = [ctypes.c_void_p]
     library.tsp_solver_result_destroy.restype = None
+    library.tsp_solver_result_get_algorithm.argtypes = [ctypes.c_void_p, c_int_p]
+    library.tsp_solver_result_get_algorithm.restype = ctypes.c_int
     library.tsp_solver_result_get_status.argtypes = [ctypes.c_void_p, c_int_p]
     library.tsp_solver_result_get_status.restype = ctypes.c_int
     library.tsp_solver_result_get_objective.argtypes = [
@@ -331,6 +337,18 @@ class Result(_NativeResource):
             "failed to get result status",
         )
         return Status(status.value)
+
+    @property
+    def algorithm(self) -> Algorithm:
+        handle = self._require_handle()
+        algorithm = ctypes.c_int()
+        _raise_for_error(
+            _load_library().tsp_solver_result_get_algorithm(
+                handle, ctypes.byref(algorithm)
+            ),
+            "failed to get result algorithm",
+        )
+        return Algorithm(algorithm.value)
 
     @property
     def objective(self) -> int:

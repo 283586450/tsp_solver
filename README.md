@@ -20,6 +20,8 @@ This repository is organized for long-term extension:
 The repository currently provides:
 - a CMake-based native build
 - a first local-search solver implementation
+- algorithm selection surfaced through the native and binding APIs, including
+  a deterministic iterated local search metaheuristic
 - Python and Java bindings with package smoke coverage
 - GitHub Actions CI and release workflows
 
@@ -116,5 +118,6 @@ ctest --preset <your-host-appropriate-preset> --output-on-failure -R "tsp_solver
 ## Extension roadmap
 
 - expand local search with more neighborhood moves and better seeding
+- add more constructive and exact algorithms behind the shared algorithm enum
 - add shared solver abstractions for future metaheuristics
 - publish Python and Java binding artifacts alongside native release bundles

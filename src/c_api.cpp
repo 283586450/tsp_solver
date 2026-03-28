@@ -1,5 +1,6 @@
 #include "tsp_solver/c_api.h"
 
+#include "tsp_solver/algorithms/held_karp.hpp"
 #include "tsp_solver/algorithms/local_search.hpp"
 #include "tsp_solver/core/problem.hpp"
 #include "tsp_solver/core/tour.hpp"
@@ -8,6 +9,7 @@
 #include <limits>
 #include <new>
 #include <optional>
+#include <stdexcept>
 #include <vector>
 
 struct tsp_solver_model {
@@ -22,6 +24,7 @@ struct tsp_solver_options {
 
 struct tsp_solver_result {
   tsp_solver_status_t status = TSP_SOLVER_STATUS_NOT_SOLVED;
+  tsp_solver_algorithm_t algorithm = TSP_SOLVER_ALGORITHM_DEFAULT;
   tsp_solver::Cost objective = 0;
   std::vector<tsp_solver::NodeId> tour;
 };
@@ -37,7 +40,29 @@ constexpr char kVersionString[] =
 
 [[nodiscard]] bool is_valid_algorithm(tsp_solver_algorithm_t algorithm) {
   return algorithm == TSP_SOLVER_ALGORITHM_DEFAULT ||
-         algorithm == TSP_SOLVER_ALGORITHM_LOCAL_SEARCH_2OPT;
+         algorithm == TSP_SOLVER_ALGORITHM_LOCAL_SEARCH_2OPT ||
+         algorithm == TSP_SOLVER_ALGORITHM_GREEDY_NEAREST_NEIGHBOR ||
+         algorithm == TSP_SOLVER_ALGORITHM_GREEDY_CHEAPEST_INSERTION ||
+         algorithm == TSP_SOLVER_ALGORITHM_HELD_KARP ||
+         algorithm == TSP_SOLVER_ALGORITHM_METAHEURISTIC_ITERATED_LOCAL_SEARCH;
+}
+
+[[nodiscard]] tsp_solver_algorithm_t resolve_algorithm(tsp_solver_algorithm_t algorithm) {
+  if (algorithm == TSP_SOLVER_ALGORITHM_DEFAULT) {
+    return TSP_SOLVER_ALGORITHM_LOCAL_SEARCH_2OPT;
+  }
+  return algorithm;
+}
+
+[[nodiscard]] tsp_solver::NodeId seed_start_node(const tsp_solver_model& model,
+                                                 std::uint64_t random_seed) {
+  const std::size_t node_count = model.distances.size();
+  if (node_count == 0) {
+    return 0;
+  }
+
+  return static_cast<tsp_solver::NodeId>(
+      random_seed % static_cast<std::uint64_t>(node_count));
 }
 
 [[nodiscard]] bool is_square(const tsp_solver_model& model) {
@@ -246,9 +271,9 @@ tsp_solver_error_code_t tsp_solver_solve(const tsp_solver_model_t* model,
 
   try {
     const tsp_solver::Problem problem = to_problem(*model);
+    const tsp_solver_algorithm_t resolved_algorithm = resolve_algorithm(options->algorithm);
+    const tsp_solver::NodeId start_node = seed_start_node(*model, options->random_seed);
 
-    // The first public release only treats an explicit zero limit as an immediate
-    // timeout. Other values are preserved for future algorithm scheduling support.
     if (options->time_limit_ms == 0) {
       auto* result = new (std::nothrow) tsp_solver_result{};
       if (result == nullptr) {
@@ -256,35 +281,53 @@ tsp_solver_error_code_t tsp_solver_solve(const tsp_solver_model_t* model,
       }
 
       result->status = TSP_SOLVER_STATUS_TIME_LIMIT;
+      result->algorithm = resolved_algorithm;
       *out_result = result;
       return TSP_SOLVER_ERROR_OK;
     }
 
-    tsp_solver::TwoOptLocalSearch solver;
-    const tsp_solver::Tour tour = solver.solve(problem);
+    tsp_solver::Tour tour;
+    switch (resolved_algorithm) {
+    case TSP_SOLVER_ALGORITHM_LOCAL_SEARCH_2OPT: {
+      tsp_solver::TwoOptLocalSearch solver(start_node);
+      tour = solver.solve(problem);
+      break;
+    }
+    case TSP_SOLVER_ALGORITHM_GREEDY_NEAREST_NEIGHBOR:
+      tour = tsp_solver::nearest_neighbor_tour(problem, start_node);
+      break;
+    case TSP_SOLVER_ALGORITHM_GREEDY_CHEAPEST_INSERTION:
+      tour = tsp_solver::cheapest_insertion_tour(problem, start_node);
+      break;
+    case TSP_SOLVER_ALGORITHM_HELD_KARP:
+      tour = tsp_solver::held_karp_tour(problem, start_node);
+      break;
+    case TSP_SOLVER_ALGORITHM_METAHEURISTIC_ITERATED_LOCAL_SEARCH:
+      tour = tsp_solver::iterated_local_search_tour(problem, start_node,
+                                                    options->random_seed);
+      break;
+    case TSP_SOLVER_ALGORITHM_DEFAULT:
+      return TSP_SOLVER_ERROR_INVALID_ARGUMENT;
+    }
 
     auto* result = new (std::nothrow) tsp_solver_result{};
     if (result == nullptr) {
       return TSP_SOLVER_ERROR_ALLOCATION_FAILED;
     }
 
-    result->status = TSP_SOLVER_STATUS_FEASIBLE;
+    result->status = resolved_algorithm == TSP_SOLVER_ALGORITHM_HELD_KARP
+                         ? TSP_SOLVER_STATUS_OPTIMAL
+                         : TSP_SOLVER_STATUS_FEASIBLE;
+    result->algorithm = resolved_algorithm;
     result->objective = tour.total_cost;
     result->tour = tour.order;
-
-    // Use the seed as a stable post-solve rotation so the option has a visible effect
-    // without changing the current deterministic backend.
-    if (!result->tour.empty() && options->random_seed != 0) {
-      const std::size_t rotation = static_cast<std::size_t>(
-          options->random_seed % static_cast<std::uint64_t>(result->tour.size()));
-      std::rotate(result->tour.begin(), result->tour.begin() + rotation,
-                  result->tour.end());
-    }
 
     *out_result = result;
     return TSP_SOLVER_ERROR_OK;
   } catch (const std::bad_alloc&) {
     return TSP_SOLVER_ERROR_ALLOCATION_FAILED;
+  } catch (const std::out_of_range&) {
+    return TSP_SOLVER_ERROR_OUT_OF_RANGE;
   } catch (...) {
     return TSP_SOLVER_ERROR_INTERNAL_ERROR;
   }
@@ -295,12 +338,22 @@ void tsp_solver_result_destroy(tsp_solver_result_t* result) {
 }
 
 tsp_solver_error_code_t tsp_solver_result_get_status(const tsp_solver_result_t* result,
-                                                     tsp_solver_status_t* out_status) {
+                                                      tsp_solver_status_t* out_status) {
   if (validate_result_handle(result) != TSP_SOLVER_ERROR_OK || out_status == nullptr) {
     return TSP_SOLVER_ERROR_INVALID_ARGUMENT;
   }
 
   *out_status = result->status;
+  return TSP_SOLVER_ERROR_OK;
+}
+
+tsp_solver_error_code_t tsp_solver_result_get_algorithm(const tsp_solver_result_t* result,
+                                                        tsp_solver_algorithm_t* out_algorithm) {
+  if (validate_result_handle(result) != TSP_SOLVER_ERROR_OK || out_algorithm == nullptr) {
+    return TSP_SOLVER_ERROR_INVALID_ARGUMENT;
+  }
+
+  *out_algorithm = result->algorithm;
   return TSP_SOLVER_ERROR_OK;
 }
 

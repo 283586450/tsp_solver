@@ -27,9 +27,39 @@ class PackageSmokeTest(unittest.TestCase):
             model.validate()
             result = model.solve(options)
             self.assertEqual(tsp_solver.Status.FEASIBLE, result.status)
+            self.assertEqual(tsp_solver.Algorithm.LOCAL_SEARCH_2OPT, result.algorithm)
             self.assertEqual(4, result.tour_size)
             self.assertEqual([0, 1, 2, 3], sorted(result.tour))
             self.assertGreaterEqual(result.objective, 0)
+
+            options.algorithm = tsp_solver.Algorithm.GREEDY_CHEAPEST_INSERTION
+            result = model.solve(options)
+            self.assertEqual(tsp_solver.Status.FEASIBLE, result.status)
+            self.assertEqual(
+                tsp_solver.Algorithm.GREEDY_CHEAPEST_INSERTION, result.algorithm
+            )
+            self.assertEqual(4, result.tour_size)
+
+            options.algorithm = tsp_solver.Algorithm.METAHEURISTIC_ITERATED_LOCAL_SEARCH
+            options.random_seed = 42
+            result = model.solve(options)
+            self.assertEqual(tsp_solver.Status.FEASIBLE, result.status)
+            self.assertEqual(
+                tsp_solver.Algorithm.METAHEURISTIC_ITERATED_LOCAL_SEARCH,
+                result.algorithm,
+            )
+            self.assertEqual(4, result.tour_size)
+            options.algorithm = tsp_solver.Algorithm.GREEDY_NEAREST_NEIGHBOR
+            seed_result = model.solve(options)
+            self.assertLessEqual(result.objective, seed_result.objective)
+            seed_result.close()
+
+            options.algorithm = tsp_solver.Algorithm.HELD_KARP
+            result = model.solve(options)
+            self.assertEqual(tsp_solver.Status.OPTIMAL, result.status)
+            self.assertEqual(tsp_solver.Algorithm.HELD_KARP, result.algorithm)
+            self.assertEqual(4, result.tour_size)
+            self.assertEqual(21, result.objective)
 
 
 if __name__ == "__main__":

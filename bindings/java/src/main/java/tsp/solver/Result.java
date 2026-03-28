@@ -9,6 +9,10 @@ public final class Result extends NativeResource {
     return Status.fromNative(nativeGetStatus(requireHandle()));
   }
 
+  public Algorithm getAlgorithm() {
+    return Algorithm.fromNative(nativeGetAlgorithm(requireHandle()));
+  }
+
   public long getObjective() {
     return nativeGetObjective(requireHandle());
   }
@@ -27,6 +31,7 @@ public final class Result extends NativeResource {
   }
 
   private static native void nativeDestroy(long handle);
+  private static native int nativeGetAlgorithm(long handle);
   private static native int nativeGetStatus(long handle);
   private static native long nativeGetObjective(long handle);
   private static native int nativeGetTourSize(long handle);

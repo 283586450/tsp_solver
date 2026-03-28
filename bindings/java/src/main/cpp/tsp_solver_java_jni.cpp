@@ -202,6 +202,22 @@ JNIEXPORT void JNICALL Java_tsp_solver_Result_nativeDestroy(JNIEnv*, jclass,
   tsp_solver_result_destroy(from_handle<tsp_solver_result_t>(handle));
 }
 
+JNIEXPORT jint JNICALL Java_tsp_solver_Result_nativeGetAlgorithm(JNIEnv* env, jclass,
+                                                                 jlong handle) {
+  tsp_solver_result_t* result =
+      require_handle<tsp_solver_result_t>(env, handle, "Result is closed");
+  if (result == nullptr) {
+    return 0;
+  }
+
+  tsp_solver_algorithm_t algorithm = TSP_SOLVER_ALGORITHM_DEFAULT;
+  if (throw_for_error(env, tsp_solver_result_get_algorithm(result, &algorithm),
+                      "failed to get result algorithm")) {
+    return 0;
+  }
+  return static_cast<jint>(algorithm);
+}
+
 JNIEXPORT jint JNICALL Java_tsp_solver_Result_nativeGetStatus(JNIEnv* env, jclass,
                                                               jlong handle) {
   tsp_solver_result_t* result =
