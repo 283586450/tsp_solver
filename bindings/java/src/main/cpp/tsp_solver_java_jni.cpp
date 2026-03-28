@@ -1,15 +1,13 @@
-#include <jni.h>
-
 #include "tsp_solver/c_api.h"
 
 #include <cstdint>
+#include <jni.h>
 #include <limits>
 #include <vector>
 
 namespace {
 
-template <typename HandleType>
-HandleType* from_handle(jlong handle) {
+template <typename HandleType> HandleType* from_handle(jlong handle) {
   return reinterpret_cast<HandleType*>(static_cast<std::intptr_t>(handle));
 }
 
@@ -34,21 +32,21 @@ void throw_exception(JNIEnv* env, const char* class_name, const char* message) {
 
 bool throw_for_error(JNIEnv* env, tsp_solver_error_code_t code, const char* context) {
   switch (code) {
-    case TSP_SOLVER_ERROR_OK:
-      return false;
-    case TSP_SOLVER_ERROR_INVALID_ARGUMENT:
-      throw_exception(env, "java/lang/IllegalArgumentException", context);
-      return true;
-    case TSP_SOLVER_ERROR_OUT_OF_RANGE:
-      throw_exception(env, "java/lang/IndexOutOfBoundsException", context);
-      return true;
-    case TSP_SOLVER_ERROR_INVALID_MODEL:
-      throw_exception(env, "java/lang/IllegalStateException", context);
-      return true;
-    case TSP_SOLVER_ERROR_ALLOCATION_FAILED:
-    case TSP_SOLVER_ERROR_INTERNAL_ERROR:
-      throw_exception(env, "tsp/solver/SolverNativeException", context);
-      return true;
+  case TSP_SOLVER_ERROR_OK:
+    return false;
+  case TSP_SOLVER_ERROR_INVALID_ARGUMENT:
+    throw_exception(env, "java/lang/IllegalArgumentException", context);
+    return true;
+  case TSP_SOLVER_ERROR_OUT_OF_RANGE:
+    throw_exception(env, "java/lang/IndexOutOfBoundsException", context);
+    return true;
+  case TSP_SOLVER_ERROR_INVALID_MODEL:
+    throw_exception(env, "java/lang/IllegalStateException", context);
+    return true;
+  case TSP_SOLVER_ERROR_ALLOCATION_FAILED:
+  case TSP_SOLVER_ERROR_INTERNAL_ERROR:
+    throw_exception(env, "tsp/solver/SolverNativeException", context);
+    return true;
   }
 
   throw_exception(env, "tsp/solver/SolverNativeException", "unknown native error");
@@ -59,7 +57,7 @@ jlong to_java_handle(const void* handle) {
   return static_cast<jlong>(reinterpret_cast<std::intptr_t>(handle));
 }
 
-}  // namespace
+} // namespace
 
 extern "C" {
 
@@ -71,26 +69,33 @@ JNIEXPORT jlong JNICALL Java_tsp_solver_Model_nativeCreate(JNIEnv* env, jclass) 
   return to_java_handle(model);
 }
 
-JNIEXPORT void JNICALL Java_tsp_solver_Model_nativeDestroy(JNIEnv*, jclass, jlong handle) {
+JNIEXPORT void JNICALL Java_tsp_solver_Model_nativeDestroy(JNIEnv*, jclass,
+                                                           jlong handle) {
   tsp_solver_model_destroy(from_handle<tsp_solver_model_t>(handle));
 }
 
-JNIEXPORT jint JNICALL Java_tsp_solver_Model_nativeAddNode(JNIEnv* env, jclass, jlong handle) {
-  tsp_solver_model_t* model = require_handle<tsp_solver_model_t>(env, handle, "Model is closed");
+JNIEXPORT jint JNICALL Java_tsp_solver_Model_nativeAddNode(JNIEnv* env, jclass,
+                                                           jlong handle) {
+  tsp_solver_model_t* model =
+      require_handle<tsp_solver_model_t>(env, handle, "Model is closed");
   if (model == nullptr) {
     return 0;
   }
 
   tsp_solver_node_id_t node_id = 0;
-  if (throw_for_error(env, tsp_solver_model_add_node(model, &node_id), "failed to add node")) {
+  if (throw_for_error(env, tsp_solver_model_add_node(model, &node_id),
+                      "failed to add node")) {
     return 0;
   }
   return static_cast<jint>(node_id);
 }
 
-JNIEXPORT void JNICALL Java_tsp_solver_Model_nativeSetDistance(
-    JNIEnv* env, jclass, jlong handle, jint from, jint to, jlong distance) {
-  tsp_solver_model_t* model = require_handle<tsp_solver_model_t>(env, handle, "Model is closed");
+JNIEXPORT void JNICALL Java_tsp_solver_Model_nativeSetDistance(JNIEnv* env, jclass,
+                                                               jlong handle, jint from,
+                                                               jint to,
+                                                               jlong distance) {
+  tsp_solver_model_t* model =
+      require_handle<tsp_solver_model_t>(env, handle, "Model is closed");
   if (model == nullptr) {
     return;
   }
@@ -105,8 +110,10 @@ JNIEXPORT void JNICALL Java_tsp_solver_Model_nativeSetDistance(
   }
 }
 
-JNIEXPORT void JNICALL Java_tsp_solver_Model_nativeValidate(JNIEnv* env, jclass, jlong handle) {
-  tsp_solver_model_t* model = require_handle<tsp_solver_model_t>(env, handle, "Model is closed");
+JNIEXPORT void JNICALL Java_tsp_solver_Model_nativeValidate(JNIEnv* env, jclass,
+                                                            jlong handle) {
+  tsp_solver_model_t* model =
+      require_handle<tsp_solver_model_t>(env, handle, "Model is closed");
   if (model == nullptr) {
     return;
   }
@@ -116,18 +123,21 @@ JNIEXPORT void JNICALL Java_tsp_solver_Model_nativeValidate(JNIEnv* env, jclass,
 
 JNIEXPORT jlong JNICALL Java_tsp_solver_Options_nativeCreate(JNIEnv* env, jclass) {
   tsp_solver_options_t* options = nullptr;
-  if (throw_for_error(env, tsp_solver_options_create(&options), "failed to create options")) {
+  if (throw_for_error(env, tsp_solver_options_create(&options),
+                      "failed to create options")) {
     return 0;
   }
   return to_java_handle(options);
 }
 
-JNIEXPORT void JNICALL Java_tsp_solver_Options_nativeDestroy(JNIEnv*, jclass, jlong handle) {
+JNIEXPORT void JNICALL Java_tsp_solver_Options_nativeDestroy(JNIEnv*, jclass,
+                                                             jlong handle) {
   tsp_solver_options_destroy(from_handle<tsp_solver_options_t>(handle));
 }
 
-JNIEXPORT void JNICALL Java_tsp_solver_Options_nativeSetTimeLimitMs(
-    JNIEnv* env, jclass, jlong handle, jlong value) {
+JNIEXPORT void JNICALL Java_tsp_solver_Options_nativeSetTimeLimitMs(JNIEnv* env, jclass,
+                                                                    jlong handle,
+                                                                    jlong value) {
   tsp_solver_options_t* options =
       require_handle<tsp_solver_options_t>(env, handle, "Options is closed");
   if (options == nullptr) {
@@ -135,16 +145,20 @@ JNIEXPORT void JNICALL Java_tsp_solver_Options_nativeSetTimeLimitMs(
   }
 
   if (value < 0) {
-    throw_exception(env, "java/lang/IllegalArgumentException", "time limit must be >= 0");
+    throw_exception(env, "java/lang/IllegalArgumentException",
+                    "time limit must be >= 0");
     return;
   }
 
-  throw_for_error(env, tsp_solver_options_set_time_limit_ms(options, static_cast<std::uint64_t>(value)),
-                  "failed to set time limit");
+  throw_for_error(
+      env,
+      tsp_solver_options_set_time_limit_ms(options, static_cast<std::uint64_t>(value)),
+      "failed to set time limit");
 }
 
-JNIEXPORT void JNICALL Java_tsp_solver_Options_nativeSetRandomSeed(
-    JNIEnv* env, jclass, jlong handle, jlong value) {
+JNIEXPORT void JNICALL Java_tsp_solver_Options_nativeSetRandomSeed(JNIEnv* env, jclass,
+                                                                   jlong handle,
+                                                                   jlong value) {
   tsp_solver_options_t* options =
       require_handle<tsp_solver_options_t>(env, handle, "Options is closed");
   if (options == nullptr) {
@@ -152,12 +166,15 @@ JNIEXPORT void JNICALL Java_tsp_solver_Options_nativeSetRandomSeed(
   }
 
   if (value < 0) {
-    throw_exception(env, "java/lang/IllegalArgumentException", "random seed must be >= 0");
+    throw_exception(env, "java/lang/IllegalArgumentException",
+                    "random seed must be >= 0");
     return;
   }
 
-  throw_for_error(env, tsp_solver_options_set_random_seed(options, static_cast<std::uint64_t>(value)),
-                  "failed to set random seed");
+  throw_for_error(
+      env,
+      tsp_solver_options_set_random_seed(options, static_cast<std::uint64_t>(value)),
+      "failed to set random seed");
 }
 
 JNIEXPORT void JNICALL Java_tsp_solver_Options_nativeSetAlgorithm(
@@ -174,11 +191,13 @@ JNIEXPORT void JNICALL Java_tsp_solver_Options_nativeSetAlgorithm(
                   "failed to set algorithm");
 }
 
-JNIEXPORT void JNICALL Java_tsp_solver_Result_nativeDestroy(JNIEnv*, jclass, jlong handle) {
+JNIEXPORT void JNICALL Java_tsp_solver_Result_nativeDestroy(JNIEnv*, jclass,
+                                                            jlong handle) {
   tsp_solver_result_destroy(from_handle<tsp_solver_result_t>(handle));
 }
 
-JNIEXPORT jint JNICALL Java_tsp_solver_Result_nativeGetStatus(JNIEnv* env, jclass, jlong handle) {
+JNIEXPORT jint JNICALL Java_tsp_solver_Result_nativeGetStatus(JNIEnv* env, jclass,
+                                                              jlong handle) {
   tsp_solver_result_t* result =
       require_handle<tsp_solver_result_t>(env, handle, "Result is closed");
   if (result == nullptr) {
@@ -193,7 +212,8 @@ JNIEXPORT jint JNICALL Java_tsp_solver_Result_nativeGetStatus(JNIEnv* env, jclas
   return static_cast<jint>(status);
 }
 
-JNIEXPORT jlong JNICALL Java_tsp_solver_Result_nativeGetObjective(JNIEnv* env, jclass, jlong handle) {
+JNIEXPORT jlong JNICALL Java_tsp_solver_Result_nativeGetObjective(JNIEnv* env, jclass,
+                                                                  jlong handle) {
   tsp_solver_result_t* result =
       require_handle<tsp_solver_result_t>(env, handle, "Result is closed");
   if (result == nullptr) {
@@ -208,7 +228,8 @@ JNIEXPORT jlong JNICALL Java_tsp_solver_Result_nativeGetObjective(JNIEnv* env, j
   return static_cast<jlong>(objective);
 }
 
-JNIEXPORT jint JNICALL Java_tsp_solver_Result_nativeGetTourSize(JNIEnv* env, jclass, jlong handle) {
+JNIEXPORT jint JNICALL Java_tsp_solver_Result_nativeGetTourSize(JNIEnv* env, jclass,
+                                                                jlong handle) {
   tsp_solver_result_t* result =
       require_handle<tsp_solver_result_t>(env, handle, "Result is closed");
   if (result == nullptr) {
@@ -222,14 +243,16 @@ JNIEXPORT jint JNICALL Java_tsp_solver_Result_nativeGetTourSize(JNIEnv* env, jcl
   }
 
   if (size > static_cast<std::size_t>(std::numeric_limits<jint>::max())) {
-    throw_exception(env, "tsp/solver/SolverNativeException", "tour size does not fit in jint");
+    throw_exception(env, "tsp/solver/SolverNativeException",
+                    "tour size does not fit in jint");
     return 0;
   }
 
   return static_cast<jint>(size);
 }
 
-JNIEXPORT jintArray JNICALL Java_tsp_solver_Result_nativeGetTour(JNIEnv* env, jclass, jlong handle) {
+JNIEXPORT jintArray JNICALL Java_tsp_solver_Result_nativeGetTour(JNIEnv* env, jclass,
+                                                                 jlong handle) {
   tsp_solver_result_t* result =
       require_handle<tsp_solver_result_t>(env, handle, "Result is closed");
   if (result == nullptr) {
@@ -243,14 +266,17 @@ JNIEXPORT jintArray JNICALL Java_tsp_solver_Result_nativeGetTour(JNIEnv* env, jc
   }
 
   if (size > static_cast<std::size_t>(std::numeric_limits<jint>::max())) {
-    throw_exception(env, "tsp/solver/SolverNativeException", "tour size does not fit in jint");
+    throw_exception(env, "tsp/solver/SolverNativeException",
+                    "tour size does not fit in jint");
     return nullptr;
   }
 
   std::vector<tsp_solver_node_id_t> tour(size);
   std::size_t written = 0;
-  if (size > 0 && throw_for_error(env, tsp_solver_result_get_tour(result, tour.data(), size, &written),
-                                  "failed to get result tour")) {
+  if (size > 0 &&
+      throw_for_error(env,
+                      tsp_solver_result_get_tour(result, tour.data(), size, &written),
+                      "failed to get result tour")) {
     return nullptr;
   }
 
@@ -267,8 +293,9 @@ JNIEXPORT jintArray JNICALL Java_tsp_solver_Result_nativeGetTour(JNIEnv* env, jc
   return array;
 }
 
-JNIEXPORT jlong JNICALL Java_tsp_solver_Solver_nativeSolve(
-    JNIEnv* env, jclass, jlong model_handle, jlong options_handle) {
+JNIEXPORT jlong JNICALL Java_tsp_solver_Solver_nativeSolve(JNIEnv* env, jclass,
+                                                           jlong model_handle,
+                                                           jlong options_handle) {
   tsp_solver_model_t* model =
       require_handle<tsp_solver_model_t>(env, model_handle, "Model is closed");
   tsp_solver_options_t* options =
@@ -278,10 +305,11 @@ JNIEXPORT jlong JNICALL Java_tsp_solver_Solver_nativeSolve(
   }
 
   tsp_solver_result_t* result = nullptr;
-  if (throw_for_error(env, tsp_solver_solve(model, options, &result), "failed to solve model")) {
+  if (throw_for_error(env, tsp_solver_solve(model, options, &result),
+                      "failed to solve model")) {
     return 0;
   }
   return to_java_handle(result);
 }
 
-}  // extern "C"
+} // extern "C"
