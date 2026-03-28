@@ -31,6 +31,13 @@ C install package and exported target (`tsp_solver::tsp_solver`). For a short
 usage example and result-handling notes, see `docs/c_api.md`. Consumers can use
 `find_package(tsp_solver CONFIG REQUIRED)` and link `tsp_solver::tsp_solver`.
 
+## Compatibility Policy
+
+- C++ consumers should use the headers, CMake package files, and native library from the same release archive.
+- Python wheels must be used with the native library from the exact same release version.
+- Java API jars must be used with the JNI and native bundle from the exact same release version.
+- `TSP_SOLVER_ABI_VERSION` is maintainer-facing compatibility metadata; it is not currently a promise that different release artifacts can be mixed.
+
 ## Python bindings
 
 The Python package lives under `bindings/python/tsp_solver` and wraps the C API.
@@ -46,6 +53,8 @@ Build a distributable wheel with:
 ```bash
 cmake --build --preset <your-host-appropriate-preset> --target tsp_solver_python_wheel
 ```
+
+Use the wheel from the same release as the packaged native library.
 
 Current release wheels are built on GitHub-hosted runners and validated on the
 matching runner image. Linux wheels are not yet repaired to a manylinux policy.
@@ -67,6 +76,8 @@ Build the release-oriented Java artifacts with:
 ```bash
 cmake --build --preset <your-host-appropriate-preset> --target tsp_solver_java_jar tsp_solver_java_native_bundle
 ```
+
+Use the Java API jar and native bundle from the same release.
 
 The Linux Java native bundle is currently validated on the matching
 `ubuntu-latest` runner image and does not claim a broader glibc compatibility
