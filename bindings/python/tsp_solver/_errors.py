@@ -5,7 +5,12 @@ class SolverError(RuntimeError):
     """Base error for Python bindings."""
 
 
-__all__ = ["SolverError", "LibraryLoadError", "NativeCallError"]
+__all__ = [
+    "SolverError",
+    "LibraryLoadError",
+    "NativeCallError",
+    "VersionMismatchError",
+]
 
 
 class LibraryLoadError(SolverError):
@@ -14,3 +19,7 @@ class LibraryLoadError(SolverError):
 
 class NativeCallError(SolverError):
     """Raised when a native C API call reports an error."""
+
+
+class VersionMismatchError(SolverError):
+    """Raised when Python package and native library versions differ."""
