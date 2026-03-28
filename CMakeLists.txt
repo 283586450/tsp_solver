@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.24)
 
-project(tsp_solver VERSION 0.1.0 LANGUAGES CXX)
+project(tsp_solver VERSION 0.1.0 LANGUAGES C CXX)
 
 include(CTest)
 include(GNUInstallDirs)
@@ -8,6 +8,9 @@ include(GNUInstallDirs)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
+
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_C_STANDARD_REQUIRED ON)
 
 add_library(tsp_solver)
 add_library(tsp_solver::tsp_solver ALIAS tsp_solver)
