@@ -1,6 +1,7 @@
 #include "tsp_solver/c_api.h"
 
 #include <assert.h>
+#include <stddef.h>
 #include <stdint.h>
 
 int main(void) {
