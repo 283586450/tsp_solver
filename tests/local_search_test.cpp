@@ -1,6 +1,6 @@
-#include <cassert>
-
 #include "tsp_solver/algorithms/local_search.hpp"
+
+#include <cassert>
 
 int main() {
   tsp_solver::Problem problem{{

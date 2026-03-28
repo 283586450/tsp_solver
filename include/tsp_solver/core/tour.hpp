@@ -1,8 +1,8 @@
 #pragma once
 
-#include <vector>
-
 #include "tsp_solver/core/problem.hpp"
+
+#include <vector>
 
 namespace tsp_solver {
 
