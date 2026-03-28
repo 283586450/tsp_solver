@@ -32,6 +32,7 @@ add_subdirectory(src)
 
 if(BUILD_TESTING)
   add_subdirectory(tests)
+  add_subdirectory(examples)
   add_subdirectory(bindings/python)
   add_subdirectory(bindings/java)
 endif()
