@@ -18,6 +18,9 @@ Recommended GitHub branch protection for `main`:
 - `CI / ubuntu-latest / clang`
 - `CI / macos-latest / clang`
 - `CI / windows-latest / msvc`
+- `package / ubuntu-latest`
+- `package / macos-latest`
+- `package / windows-latest`
 
 ## Suggested merge policy
 
@@ -27,4 +30,4 @@ Recommended GitHub branch protection for `main`:
 ## Notes
 
 - Keep release tags separate from branch protection rules.
-- If the repository later adds Python or Java packaging jobs, add those checks here too.
+- Keep the package jobs required so release artifacts stay consumable, not just buildable.
