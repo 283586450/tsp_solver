@@ -25,14 +25,29 @@ if (tsp_solver_options_create(&options) != TSP_SOLVER_ERROR_OK) {
   return 1;
 }
 
-tsp_solver_model_add_node(model, &node0);
-tsp_solver_model_add_node(model, &node1);
-tsp_solver_model_set_distance(model, node0, node1, 10);
-tsp_solver_model_set_distance(model, node1, node0, 12);
-tsp_solver_model_validate(model);
+if (tsp_solver_model_add_node(model, &node0) != TSP_SOLVER_ERROR_OK) {
+  return 1;
+}
+if (tsp_solver_model_add_node(model, &node1) != TSP_SOLVER_ERROR_OK) {
+  return 1;
+}
+if (tsp_solver_model_set_distance(model, node0, node1, 10) != TSP_SOLVER_ERROR_OK) {
+  return 1;
+}
+if (tsp_solver_model_set_distance(model, node1, node0, 12) != TSP_SOLVER_ERROR_OK) {
+  return 1;
+}
+if (tsp_solver_model_validate(model) != TSP_SOLVER_ERROR_OK) {
+  return 1;
+}
 
-tsp_solver_options_set_algorithm(options, TSP_SOLVER_ALGORITHM_DEFAULT);
-tsp_solver_options_set_time_limit_ms(options, 1000);
+if (tsp_solver_options_set_algorithm(options, TSP_SOLVER_ALGORITHM_DEFAULT) !=
+    TSP_SOLVER_ERROR_OK) {
+  return 1;
+}
+if (tsp_solver_options_set_time_limit_ms(options, 1000) != TSP_SOLVER_ERROR_OK) {
+  return 1;
+}
 
 if (tsp_solver_solve(model, options, &result) == TSP_SOLVER_ERROR_OK) {
   tsp_solver_status_t status = TSP_SOLVER_STATUS_NOT_SOLVED;
