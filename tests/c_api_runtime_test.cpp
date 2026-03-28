@@ -3,7 +3,11 @@
 #include <algorithm>
 #include <array>
 #include <cassert>
+#include <string_view>
 #include <vector>
+
+#define TSP_SOLVER_STRINGIFY_IMPL(value) #value
+#define TSP_SOLVER_STRINGIFY(value) TSP_SOLVER_STRINGIFY_IMPL(value)
 
 static tsp_solver_cost_t
 tour_cost(const std::array<std::array<tsp_solver_cost_t, 4>, 4>& distances,
@@ -21,6 +25,14 @@ tour_cost(const std::array<std::array<tsp_solver_cost_t, 4>, 4>& distances,
 }
 
 int main() {
+  constexpr char kExpectedVersion[] = TSP_SOLVER_STRINGIFY(TSP_SOLVER_VERSION_MAJOR)
+                                      "."
+                                      TSP_SOLVER_STRINGIFY(TSP_SOLVER_VERSION_MINOR)
+                                      "."
+                                      TSP_SOLVER_STRINGIFY(TSP_SOLVER_VERSION_PATCH);
+
+  assert(std::string_view{tsp_solver_version_string()} == kExpectedVersion);
+
   const std::array<std::array<tsp_solver_cost_t, 4>, 4> distances{{
       {{0, 2, 9, 10}},
       {{1, 0, 6, 4}},
