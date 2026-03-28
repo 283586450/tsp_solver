@@ -25,11 +25,9 @@ tour_cost(const std::array<std::array<tsp_solver_cost_t, 4>, 4>& distances,
 }
 
 int main() {
-  constexpr char kExpectedVersion[] = TSP_SOLVER_STRINGIFY(TSP_SOLVER_VERSION_MAJOR)
-                                      "."
-                                      TSP_SOLVER_STRINGIFY(TSP_SOLVER_VERSION_MINOR)
-                                      "."
-                                      TSP_SOLVER_STRINGIFY(TSP_SOLVER_VERSION_PATCH);
+  constexpr char kExpectedVersion[] =
+      TSP_SOLVER_STRINGIFY(TSP_SOLVER_VERSION_MAJOR) "." TSP_SOLVER_STRINGIFY(
+          TSP_SOLVER_VERSION_MINOR) "." TSP_SOLVER_STRINGIFY(TSP_SOLVER_VERSION_PATCH);
 
   assert(std::string_view{tsp_solver_version_string()} == kExpectedVersion);
 

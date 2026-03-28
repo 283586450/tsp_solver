@@ -31,11 +31,9 @@ namespace {
 #define TSP_SOLVER_STRINGIFY_IMPL(value) #value
 #define TSP_SOLVER_STRINGIFY(value) TSP_SOLVER_STRINGIFY_IMPL(value)
 
-constexpr char kVersionString[] = TSP_SOLVER_STRINGIFY(TSP_SOLVER_VERSION_MAJOR)
-                                  "."
-                                  TSP_SOLVER_STRINGIFY(TSP_SOLVER_VERSION_MINOR)
-                                  "."
-                                  TSP_SOLVER_STRINGIFY(TSP_SOLVER_VERSION_PATCH);
+constexpr char kVersionString[] =
+    TSP_SOLVER_STRINGIFY(TSP_SOLVER_VERSION_MAJOR) "." TSP_SOLVER_STRINGIFY(
+        TSP_SOLVER_VERSION_MINOR) "." TSP_SOLVER_STRINGIFY(TSP_SOLVER_VERSION_PATCH);
 
 [[nodiscard]] bool is_valid_algorithm(tsp_solver_algorithm_t algorithm) {
   return algorithm == TSP_SOLVER_ALGORITHM_DEFAULT ||
