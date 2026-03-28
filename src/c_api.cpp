@@ -47,7 +47,8 @@ constexpr char kVersionString[] =
          algorithm == TSP_SOLVER_ALGORITHM_METAHEURISTIC_ITERATED_LOCAL_SEARCH;
 }
 
-[[nodiscard]] tsp_solver_algorithm_t resolve_algorithm(tsp_solver_algorithm_t algorithm) {
+[[nodiscard]] tsp_solver_algorithm_t
+resolve_algorithm(tsp_solver_algorithm_t algorithm) {
   if (algorithm == TSP_SOLVER_ALGORITHM_DEFAULT) {
     return TSP_SOLVER_ALGORITHM_LOCAL_SEARCH_2OPT;
   }
@@ -61,8 +62,8 @@ constexpr char kVersionString[] =
     return 0;
   }
 
-  return static_cast<tsp_solver::NodeId>(
-      random_seed % static_cast<std::uint64_t>(node_count));
+  return static_cast<tsp_solver::NodeId>(random_seed %
+                                         static_cast<std::uint64_t>(node_count));
 }
 
 [[nodiscard]] bool is_square(const tsp_solver_model& model) {
@@ -271,7 +272,8 @@ tsp_solver_error_code_t tsp_solver_solve(const tsp_solver_model_t* model,
 
   try {
     const tsp_solver::Problem problem = to_problem(*model);
-    const tsp_solver_algorithm_t resolved_algorithm = resolve_algorithm(options->algorithm);
+    const tsp_solver_algorithm_t resolved_algorithm =
+        resolve_algorithm(options->algorithm);
     const tsp_solver::NodeId start_node = seed_start_node(*model, options->random_seed);
 
     if (options->time_limit_ms == 0) {
@@ -338,7 +340,7 @@ void tsp_solver_result_destroy(tsp_solver_result_t* result) {
 }
 
 tsp_solver_error_code_t tsp_solver_result_get_status(const tsp_solver_result_t* result,
-                                                      tsp_solver_status_t* out_status) {
+                                                     tsp_solver_status_t* out_status) {
   if (validate_result_handle(result) != TSP_SOLVER_ERROR_OK || out_status == nullptr) {
     return TSP_SOLVER_ERROR_INVALID_ARGUMENT;
   }
@@ -347,9 +349,11 @@ tsp_solver_error_code_t tsp_solver_result_get_status(const tsp_solver_result_t* 
   return TSP_SOLVER_ERROR_OK;
 }
 
-tsp_solver_error_code_t tsp_solver_result_get_algorithm(const tsp_solver_result_t* result,
-                                                        tsp_solver_algorithm_t* out_algorithm) {
-  if (validate_result_handle(result) != TSP_SOLVER_ERROR_OK || out_algorithm == nullptr) {
+tsp_solver_error_code_t
+tsp_solver_result_get_algorithm(const tsp_solver_result_t* result,
+                                tsp_solver_algorithm_t* out_algorithm) {
+  if (validate_result_handle(result) != TSP_SOLVER_ERROR_OK ||
+      out_algorithm == nullptr) {
     return TSP_SOLVER_ERROR_INVALID_ARGUMENT;
   }
 

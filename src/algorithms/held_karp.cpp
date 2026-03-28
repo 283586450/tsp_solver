@@ -99,8 +99,8 @@ Tour held_karp_tour(const Problem& problem, NodeId start_node) {
           continue;
         }
 
-        const Cost candidate = previous_cost +
-                               edge_cost(problem, nodes[previous], nodes[last]);
+        const Cost candidate =
+            previous_cost + edge_cost(problem, nodes[previous], nodes[last]);
         if (candidate < best_cost ||
             (candidate == best_cost && nodes[previous] < best_parent)) {
           best_cost = candidate;

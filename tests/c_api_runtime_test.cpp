@@ -120,25 +120,28 @@ int main() {
   assert((sorted_tour == std::vector<tsp_solver_node_id_t>{0, 1, 2, 3}));
   assert(objective == tour_cost(distances, tour));
 
-  assert(tsp_solver_options_set_algorithm(options, TSP_SOLVER_ALGORITHM_GREEDY_NEAREST_NEIGHBOR) ==
-          TSP_SOLVER_ERROR_OK);
+  assert(tsp_solver_options_set_algorithm(
+             options, TSP_SOLVER_ALGORITHM_GREEDY_NEAREST_NEIGHBOR) ==
+         TSP_SOLVER_ERROR_OK);
   assert(tsp_solver_solve(model, options, &nn_result) == TSP_SOLVER_ERROR_OK);
 
   tsp_solver_status_t default_status = TSP_SOLVER_STATUS_NOT_SOLVED;
   tsp_solver_cost_t default_objective = 0;
   std::vector<tsp_solver_node_id_t> nn_tour;
-  assert(tsp_solver_result_get_status(nn_result, &default_status) == TSP_SOLVER_ERROR_OK);
+  assert(tsp_solver_result_get_status(nn_result, &default_status) ==
+         TSP_SOLVER_ERROR_OK);
   assert(tsp_solver_result_get_algorithm(nn_result, &algorithm) == TSP_SOLVER_ERROR_OK);
   assert(tsp_solver_result_get_objective(nn_result, &nn_objective) ==
-          TSP_SOLVER_ERROR_OK);
+         TSP_SOLVER_ERROR_OK);
   assert(default_status == TSP_SOLVER_STATUS_FEASIBLE);
   assert(algorithm == TSP_SOLVER_ALGORITHM_GREEDY_NEAREST_NEIGHBOR);
-  nn_tour.resize(tsp_solver_result_get_tour_size(nn_result, &tour_size) == TSP_SOLVER_ERROR_OK
+  nn_tour.resize(tsp_solver_result_get_tour_size(nn_result, &tour_size) ==
+                         TSP_SOLVER_ERROR_OK
                      ? tour_size
                      : 0);
   assert(!nn_tour.empty());
-  assert(tsp_solver_result_get_tour(nn_result, nn_tour.data(), nn_tour.size(), &written) ==
-         TSP_SOLVER_ERROR_OK);
+  assert(tsp_solver_result_get_tour(nn_result, nn_tour.data(), nn_tour.size(),
+                                    &written) == TSP_SOLVER_ERROR_OK);
   assert(nn_objective == tour_cost(distances, nn_tour));
 
   assert(tsp_solver_options_set_algorithm(options, TSP_SOLVER_ALGORITHM_DEFAULT) ==
@@ -159,9 +162,10 @@ int main() {
 
   assert(tsp_solver_options_set_algorithm(
              options, TSP_SOLVER_ALGORITHM_GREEDY_CHEAPEST_INSERTION) ==
-          TSP_SOLVER_ERROR_OK);
+         TSP_SOLVER_ERROR_OK);
   assert(tsp_solver_solve(model, options, &ci_result) == TSP_SOLVER_ERROR_OK);
-  assert(tsp_solver_result_get_status(ci_result, &default_status) == TSP_SOLVER_ERROR_OK);
+  assert(tsp_solver_result_get_status(ci_result, &default_status) ==
+         TSP_SOLVER_ERROR_OK);
   assert(tsp_solver_result_get_algorithm(ci_result, &algorithm) == TSP_SOLVER_ERROR_OK);
   assert(tsp_solver_result_get_tour_size(ci_result, &tour_size) == TSP_SOLVER_ERROR_OK);
   assert(default_status == TSP_SOLVER_STATUS_FEASIBLE);
@@ -173,11 +177,14 @@ int main() {
          TSP_SOLVER_ERROR_OK);
   assert(tsp_solver_options_set_random_seed(options, 42) == TSP_SOLVER_ERROR_OK);
   assert(tsp_solver_solve(model, options, &ils_result) == TSP_SOLVER_ERROR_OK);
-  assert(tsp_solver_result_get_status(ils_result, &default_status) == TSP_SOLVER_ERROR_OK);
-  assert(tsp_solver_result_get_algorithm(ils_result, &algorithm) == TSP_SOLVER_ERROR_OK);
+  assert(tsp_solver_result_get_status(ils_result, &default_status) ==
+         TSP_SOLVER_ERROR_OK);
+  assert(tsp_solver_result_get_algorithm(ils_result, &algorithm) ==
+         TSP_SOLVER_ERROR_OK);
   assert(tsp_solver_result_get_objective(ils_result, &default_objective) ==
          TSP_SOLVER_ERROR_OK);
-  assert(tsp_solver_result_get_tour_size(ils_result, &tour_size) == TSP_SOLVER_ERROR_OK);
+  assert(tsp_solver_result_get_tour_size(ils_result, &tour_size) ==
+         TSP_SOLVER_ERROR_OK);
   assert(default_status == TSP_SOLVER_STATUS_FEASIBLE);
   assert(algorithm == TSP_SOLVER_ALGORITHM_METAHEURISTIC_ITERATED_LOCAL_SEARCH);
   assert(tour_size == 4);
@@ -186,7 +193,8 @@ int main() {
   assert(tsp_solver_options_set_algorithm(options, TSP_SOLVER_ALGORITHM_HELD_KARP) ==
          TSP_SOLVER_ERROR_OK);
   assert(tsp_solver_solve(model, options, &hk_result) == TSP_SOLVER_ERROR_OK);
-  assert(tsp_solver_result_get_status(hk_result, &default_status) == TSP_SOLVER_ERROR_OK);
+  assert(tsp_solver_result_get_status(hk_result, &default_status) ==
+         TSP_SOLVER_ERROR_OK);
   assert(tsp_solver_result_get_algorithm(hk_result, &algorithm) == TSP_SOLVER_ERROR_OK);
   assert(tsp_solver_result_get_objective(hk_result, &default_objective) ==
          TSP_SOLVER_ERROR_OK);

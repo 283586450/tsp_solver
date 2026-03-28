@@ -4,8 +4,8 @@
 #include <cstddef>
 #include <cstdint>
 #include <limits>
-#include <stdexcept>
 #include <ranges>
+#include <stdexcept>
 #include <utility>
 #include <vector>
 
@@ -160,8 +160,8 @@ constexpr std::uint64_t kPerturbationMix = 0x9e3779b97f4a7c15ULL;
       continue;
     }
 
-    const Cost cycle_cost = problem.distances[first][candidate] +
-                            problem.distances[candidate][first];
+    const Cost cycle_cost =
+        problem.distances[first][candidate] + problem.distances[candidate][first];
     if (cycle_cost < best_cost || (cycle_cost == best_cost && candidate < second)) {
       best_cost = cycle_cost;
       second = candidate;
@@ -177,7 +177,8 @@ constexpr std::uint64_t kPerturbationMix = 0x9e3779b97f4a7c15ULL;
     Cost best_delta = std::numeric_limits<Cost>::max();
     bool found = false;
 
-    for (NodeId candidate = 0; candidate < static_cast<NodeId>(node_count); ++candidate) {
+    for (NodeId candidate = 0; candidate < static_cast<NodeId>(node_count);
+         ++candidate) {
       if (visited[candidate] != 0) {
         continue;
       }
@@ -192,7 +193,8 @@ constexpr std::uint64_t kPerturbationMix = 0x9e3779b97f4a7c15ULL;
 
         if (!found || delta < best_delta ||
             (delta == best_delta && candidate < best_node) ||
-            (delta == best_delta && candidate == best_node && position < best_position)) {
+            (delta == best_delta && candidate == best_node &&
+             position < best_position)) {
           best_delta = delta;
           best_node = candidate;
           best_position = position + 1;
@@ -286,10 +288,10 @@ Tour iterated_local_search_tour(const Problem& problem, NodeId start_node,
   }
 
   Tour best = two_opt_refine(problem, build_nearest_neighbor_seed(problem, start_node));
-  std::uint64_t state = random_seed ^
-                         (static_cast<std::uint64_t>(normalize_start_node(problem, start_node))
-                          << 1) ^
-                         kPerturbationMix;
+  std::uint64_t state =
+      random_seed ^
+      (static_cast<std::uint64_t>(normalize_start_node(problem, start_node)) << 1) ^
+      kPerturbationMix;
   const std::size_t iterations = std::max<std::size_t>(1, node_count);
 
   for (std::size_t iteration = 0; iteration < iterations; ++iteration) {
