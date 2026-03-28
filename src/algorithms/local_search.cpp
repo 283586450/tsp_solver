@@ -13,6 +13,11 @@ namespace tsp_solver {
 namespace {
 
 constexpr std::uint64_t kPerturbationMix = 0x9e3779b97f4a7c15ULL;
+constexpr std::uint64_t kSplitMix64Shift1 = 30;
+constexpr std::uint64_t kSplitMix64Shift2 = 27;
+constexpr std::uint64_t kSplitMix64Shift3 = 31;
+constexpr std::uint64_t kSplitMix64Mul1 = 0xbf58476d1ce4e5b9ULL;
+constexpr std::uint64_t kSplitMix64Mul2 = 0x94d049bb133111ebULL;
 
 [[nodiscard]] NodeId normalize_start_node(const Problem& problem, NodeId start_node) {
   const std::size_t node_count = problem.size();
@@ -77,9 +82,9 @@ constexpr std::uint64_t kPerturbationMix = 0x9e3779b97f4a7c15ULL;
 [[nodiscard]] std::uint64_t splitmix64(std::uint64_t& state) {
   state += kPerturbationMix;
   std::uint64_t value = state;
-  value = (value ^ (value >> 30)) * 0xbf58476d1ce4e5b9ULL;
-  value = (value ^ (value >> 27)) * 0x94d049bb133111ebULL;
-  return value ^ (value >> 31);
+  value = (value ^ (value >> kSplitMix64Shift1)) * kSplitMix64Mul1;
+  value = (value ^ (value >> kSplitMix64Shift2)) * kSplitMix64Mul2;
+  return value ^ (value >> kSplitMix64Shift3);
 }
 
 [[nodiscard]] std::vector<NodeId> perturb_tour(std::vector<NodeId> order,
@@ -186,10 +191,10 @@ constexpr std::uint64_t kPerturbationMix = 0x9e3779b97f4a7c15ULL;
       for (std::size_t position = 0; position < order.size(); ++position) {
         const std::size_t next = (position + 1) % order.size();
         const NodeId from = order[position];
-        const NodeId to = order[next];
+        const NodeId target_node = order[next];
         const Cost delta = problem.distances[from][candidate] +
-                           problem.distances[candidate][to] -
-                           problem.distances[from][to];
+                           problem.distances[candidate][target_node] -
+                           problem.distances[from][target_node];
 
         if (!found || delta < best_delta ||
             (delta == best_delta && candidate < best_node) ||
