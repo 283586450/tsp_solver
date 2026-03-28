@@ -4,7 +4,7 @@
 
 int main(void) {
   _Static_assert(TSP_SOLVER_VERSION_MAJOR == 0, "major version");
-  _Static_assert(TSP_SOLVER_VERSION_MINOR == 1, "minor version");
+  _Static_assert(TSP_SOLVER_VERSION_MINOR == 2, "minor version");
   _Static_assert(TSP_SOLVER_VERSION_PATCH == 0, "patch version");
   _Static_assert(sizeof(tsp_solver_cost_t) == 8, "cost width");
 
