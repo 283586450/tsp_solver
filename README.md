@@ -23,6 +23,11 @@ The repository currently provides:
 - a minimal test target
 - GitHub Actions CI and release workflows
 
+## C API
+
+The first public native boundary is available in `include/tsp_solver/c_api.h`.
+For a short usage example and result-handling notes, see `docs/c_api.md`.
+
 ## Build and test
 
 ```bash

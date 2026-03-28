@@ -10,13 +10,18 @@ target_link_libraries(tsp_solver_c_api_header_test_cpp PRIVATE tsp_solver)
 add_executable(tsp_solver_c_api_runtime_test c_api_runtime_test.cpp)
 target_link_libraries(tsp_solver_c_api_runtime_test PRIVATE tsp_solver)
 
+add_executable(tsp_solver_c_api_error_test c_api_error_test.cpp)
+target_link_libraries(tsp_solver_c_api_error_test PRIVATE tsp_solver)
+
 include(${CMAKE_CURRENT_LIST_DIR}/../cmake/ProjectWarnings.cmake)
 tsp_solver_enable_warnings(tsp_solver_tests)
 tsp_solver_enable_warnings(tsp_solver_c_api_header_test)
 tsp_solver_enable_warnings(tsp_solver_c_api_header_test_cpp)
 tsp_solver_enable_warnings(tsp_solver_c_api_runtime_test)
+tsp_solver_enable_warnings(tsp_solver_c_api_error_test)
 
 add_test(NAME tsp_solver_tests COMMAND tsp_solver_tests)
 add_test(NAME tsp_solver_c_api_header_test COMMAND tsp_solver_c_api_header_test)
 add_test(NAME tsp_solver_c_api_header_test_cpp COMMAND tsp_solver_c_api_header_test_cpp)
 add_test(NAME tsp_solver_c_api_runtime_test COMMAND tsp_solver_c_api_runtime_test)
+add_test(NAME tsp_solver_c_api_error_test COMMAND tsp_solver_c_api_error_test)
