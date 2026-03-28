@@ -13,6 +13,8 @@ target_link_libraries(tsp_solver_c_api_runtime_test PRIVATE tsp_solver)
 add_executable(tsp_solver_c_api_error_test c_api_error_test.cpp)
 target_link_libraries(tsp_solver_c_api_error_test PRIVATE tsp_solver)
 
+find_package(Python3 COMPONENTS Interpreter REQUIRED)
+
 include(${CMAKE_CURRENT_LIST_DIR}/../cmake/ProjectWarnings.cmake)
 tsp_solver_enable_warnings(tsp_solver_tests)
 tsp_solver_enable_warnings(tsp_solver_c_api_header_test)
@@ -43,8 +45,20 @@ add_test(
   NAME tsp_solver_package_smoke
   COMMAND ${CMAKE_COMMAND} ${_tsp_solver_package_smoke_args} -P ${CMAKE_CURRENT_LIST_DIR}/package_smoke.cmake)
 
+add_test(
+  NAME tsp_solver_examples_cpp_smoke
+  COMMAND ${CMAKE_COMMAND}
+          -Dexamples_cpp_binary=$<TARGET_FILE:tsp_solver_examples_cpp>
+          -P ${CMAKE_CURRENT_LIST_DIR}/examples_cpp_smoke.cmake)
+
+add_test(
+  NAME tsp_solver_examples_python_smoke
+  COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_LIST_DIR}/examples_python_smoke.py)
+
 if(WIN32)
   set(_tsp_solver_test_path "PATH=$<TARGET_FILE_DIR:tsp_solver>;$ENV{PATH}")
+  set(_tsp_solver_examples_python_env
+      "${_tsp_solver_test_path};PYTHONPATH=${CMAKE_SOURCE_DIR}/bindings/python;TSP_SOLVER_LIBRARY_PATH=$<TARGET_FILE:tsp_solver>")
   foreach(test_name
       tsp_solver_tests
       tsp_solver_c_api_header_test
@@ -54,4 +68,15 @@ if(WIN32)
       tsp_solver_package_smoke)
     set_tests_properties(${test_name} PROPERTIES ENVIRONMENT "${_tsp_solver_test_path}")
   endforeach()
+
+  set_tests_properties(tsp_solver_examples_cpp_smoke PROPERTIES ENVIRONMENT "${_tsp_solver_test_path}")
+  set_tests_properties(tsp_solver_examples_python_smoke PROPERTIES ENVIRONMENT "${_tsp_solver_examples_python_env}")
+else()
+  set(_tsp_solver_examples_python_env
+      "PYTHONPATH=${CMAKE_SOURCE_DIR}/bindings/python;TSP_SOLVER_LIBRARY_PATH=$<TARGET_FILE:tsp_solver>")
+  set_tests_properties(tsp_solver_examples_python_smoke PROPERTIES ENVIRONMENT "${_tsp_solver_examples_python_env}")
+endif()
+
+if(NOT WIN32)
+  set_tests_properties(tsp_solver_examples_cpp_smoke PROPERTIES ENVIRONMENT "PATH=$<TARGET_FILE_DIR:tsp_solver>;$ENV{PATH}")
 endif()

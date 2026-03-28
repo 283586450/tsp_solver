@@ -23,11 +23,16 @@ set(TSP_SOLVER_JAVA_MAIN_SOURCES
 set(TSP_SOLVER_JAVA_TEST_SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/src/test/java/tsp/solver/BindingTestMain.java)
 
+set(TSP_SOLVER_JAVA_EXAMPLE_SOURCES
+  ${CMAKE_CURRENT_SOURCE_DIR}/../../examples/java/src/main/java/tsp/solver/examples/CompareAlgorithmsMain.java)
+
 set(TSP_SOLVER_JAVA_MAIN_CLASSES_DIR ${CMAKE_CURRENT_BINARY_DIR}/classes/main)
 set(TSP_SOLVER_JAVA_TEST_CLASSES_DIR ${CMAKE_CURRENT_BINARY_DIR}/classes/test)
+set(TSP_SOLVER_JAVA_EXAMPLE_CLASSES_DIR ${CMAKE_CURRENT_BINARY_DIR}/classes/examples)
 set(TSP_SOLVER_JAVA_HEADERS_DIR ${CMAKE_CURRENT_BINARY_DIR}/generated)
 set(TSP_SOLVER_JAVA_MAIN_COMPILE_STAMP ${TSP_SOLVER_JAVA_MAIN_CLASSES_DIR}/.compiled)
 set(TSP_SOLVER_JAVA_TEST_COMPILE_STAMP ${TSP_SOLVER_JAVA_TEST_CLASSES_DIR}/.compiled)
+set(TSP_SOLVER_JAVA_EXAMPLE_COMPILE_STAMP ${TSP_SOLVER_JAVA_EXAMPLE_CLASSES_DIR}/.compiled)
 set(TSP_SOLVER_JAVA_DIST_DIR ${CMAKE_CURRENT_BINARY_DIR}/dist)
 
 string(TOLOWER "${CMAKE_SYSTEM_PROCESSOR}" TSP_SOLVER_JAVA_SYSTEM_PROCESSOR)
@@ -80,6 +85,17 @@ add_custom_command(
   VERBATIM)
 
 add_custom_target(tsp_solver_java_test_classes ALL DEPENDS ${TSP_SOLVER_JAVA_TEST_COMPILE_STAMP})
+
+add_custom_command(
+  OUTPUT ${TSP_SOLVER_JAVA_EXAMPLE_COMPILE_STAMP}
+  COMMAND ${CMAKE_COMMAND} -E make_directory ${TSP_SOLVER_JAVA_EXAMPLE_CLASSES_DIR}
+  COMMAND ${Java_JAVAC_EXECUTABLE} -cp ${TSP_SOLVER_JAVA_MAIN_CLASSES_DIR} -d ${TSP_SOLVER_JAVA_EXAMPLE_CLASSES_DIR}
+          ${TSP_SOLVER_JAVA_EXAMPLE_SOURCES}
+  COMMAND ${CMAKE_COMMAND} -E touch ${TSP_SOLVER_JAVA_EXAMPLE_COMPILE_STAMP}
+  DEPENDS tsp_solver_java_main_classes ${TSP_SOLVER_JAVA_EXAMPLE_SOURCES}
+  VERBATIM)
+
+add_custom_target(tsp_solver_java_example_classes ALL DEPENDS ${TSP_SOLVER_JAVA_EXAMPLE_COMPILE_STAMP})
 
 add_custom_command(
   OUTPUT ${TSP_SOLVER_JAVA_JAR}
@@ -170,3 +186,23 @@ add_test(
           -Dsmoke_build_dir=${CMAKE_CURRENT_BINARY_DIR}/package-smoke-classes
           -Djni_library_name=$<TARGET_FILE_NAME:tsp_solver_java_jni>
           -P ${CMAKE_CURRENT_SOURCE_DIR}/package_smoke.cmake)
+
+add_test(
+  NAME tsp_solver_examples_java_smoke
+  COMMAND ${CMAKE_COMMAND}
+          -Djava_executable=${Java_JAVA_EXECUTABLE}
+          -Djava_main_classes_dir=${TSP_SOLVER_JAVA_MAIN_CLASSES_DIR}
+          -Djava_example_classes_dir=${TSP_SOLVER_JAVA_EXAMPLE_CLASSES_DIR}
+          -Djni_library_path=$<TARGET_FILE:tsp_solver_java_jni>
+          -P ${CMAKE_SOURCE_DIR}/tests/examples_java_smoke.cmake)
+
+if(WIN32)
+  set_tests_properties(tsp_solver_examples_java_smoke PROPERTIES
+                       ENVIRONMENT "PATH=$<TARGET_FILE_DIR:tsp_solver_java_jni>;$<TARGET_FILE_DIR:tsp_solver>;$ENV{PATH}")
+elseif(APPLE)
+  set_tests_properties(tsp_solver_examples_java_smoke PROPERTIES
+                       ENVIRONMENT "DYLD_LIBRARY_PATH=$<TARGET_FILE_DIR:tsp_solver_java_jni>:$<TARGET_FILE_DIR:tsp_solver>:$ENV{DYLD_LIBRARY_PATH}")
+else()
+  set_tests_properties(tsp_solver_examples_java_smoke PROPERTIES
+                       ENVIRONMENT "LD_LIBRARY_PATH=$<TARGET_FILE_DIR:tsp_solver_java_jni>:$<TARGET_FILE_DIR:tsp_solver>:$ENV{LD_LIBRARY_PATH}")
+endif()

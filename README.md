@@ -110,6 +110,10 @@ ctest --preset <your-host-appropriate-preset> --output-on-failure -R "tsp_solver
 - 格式化规则定义在 `.clang-format`。
 - 静态分析默认配置位于 `.clang-tidy`。
 
+## 示例
+
+`examples/README.md` 提供了 C++、Python 和 Java 的同场景比较示例，三种语言都使用同一份 20 城市距离矩阵。
+
 ## 扩展路线图
 
 - 扩展局部搜索，增加更多邻域移动和更好的初始种子
