@@ -8,10 +8,12 @@ int main() {
   tsp_solver_result_t* result = nullptr;
   tsp_solver_node_id_t node_id = 0;
 
-  if (tsp_solver_model_add_node(nullptr, &node_id) != TSP_SOLVER_ERROR_INVALID_ARGUMENT) {
+  if (tsp_solver_model_add_node(nullptr, &node_id) !=
+      TSP_SOLVER_ERROR_INVALID_ARGUMENT) {
     return 1;
   }
-  if (tsp_solver_options_set_time_limit_ms(nullptr, 1) != TSP_SOLVER_ERROR_INVALID_ARGUMENT) {
+  if (tsp_solver_options_set_time_limit_ms(nullptr, 1) !=
+      TSP_SOLVER_ERROR_INVALID_ARGUMENT) {
     return 1;
   }
   if (tsp_solver_result_get_tour(nullptr, nullptr, 0, nullptr) !=
@@ -25,7 +27,8 @@ int main() {
   if (tsp_solver_options_create(&options) != TSP_SOLVER_ERROR_OK) {
     return 1;
   }
-  if (tsp_solver_solve(nullptr, options, &result) != TSP_SOLVER_ERROR_INVALID_ARGUMENT) {
+  if (tsp_solver_solve(nullptr, options, &result) !=
+      TSP_SOLVER_ERROR_INVALID_ARGUMENT) {
     return 1;
   }
 

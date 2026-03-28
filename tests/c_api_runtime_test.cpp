@@ -5,9 +5,9 @@
 #include <cassert>
 #include <vector>
 
-static tsp_solver_cost_t tour_cost(
-    const std::array<std::array<tsp_solver_cost_t, 4>, 4>& distances,
-    const std::vector<tsp_solver_node_id_t>& tour) {
+static tsp_solver_cost_t
+tour_cost(const std::array<std::array<tsp_solver_cost_t, 4>, 4>& distances,
+          const std::vector<tsp_solver_node_id_t>& tour) {
   if (tour.empty()) {
     return 0;
   }
@@ -43,8 +43,8 @@ int main() {
   assert(tsp_solver_options_create(&options) == TSP_SOLVER_ERROR_OK);
   assert(tsp_solver_options_set_time_limit_ms(options, 1000) == TSP_SOLVER_ERROR_OK);
   assert(tsp_solver_options_set_random_seed(options, 42) == TSP_SOLVER_ERROR_OK);
-  assert(tsp_solver_options_set_algorithm(options,
-         TSP_SOLVER_ALGORITHM_LOCAL_SEARCH_2OPT) == TSP_SOLVER_ERROR_OK);
+  assert(tsp_solver_options_set_algorithm(
+             options, TSP_SOLVER_ALGORITHM_LOCAL_SEARCH_2OPT) == TSP_SOLVER_ERROR_OK);
 
   tsp_solver_node_id_t incomplete_ids[2] = {};
   for (std::size_t index = 0; index < 2; ++index) {
@@ -101,8 +101,8 @@ int main() {
   assert((sorted_tour == std::vector<tsp_solver_node_id_t>{0, 1, 2, 3}));
   assert(objective == tour_cost(distances, tour));
 
-  assert(tsp_solver_options_set_algorithm(options,
-         TSP_SOLVER_ALGORITHM_DEFAULT) == TSP_SOLVER_ERROR_OK);
+  assert(tsp_solver_options_set_algorithm(options, TSP_SOLVER_ALGORITHM_DEFAULT) ==
+         TSP_SOLVER_ERROR_OK);
   assert(tsp_solver_solve(model, options, &default_result) == TSP_SOLVER_ERROR_OK);
 
   tsp_solver_status_t default_status = TSP_SOLVER_STATUS_NOT_SOLVED;

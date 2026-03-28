@@ -5,9 +5,9 @@
 #include "tsp_solver/core/tour.hpp"
 
 #include <algorithm>
+#include <limits>
 #include <new>
 #include <optional>
-#include <limits>
 #include <vector>
 
 struct tsp_solver_model {
@@ -74,12 +74,12 @@ namespace {
   return problem;
 }
 
-[[nodiscard]] tsp_solver_error_code_t validate_result_handle(
-    const tsp_solver_result_t* result) {
+[[nodiscard]] tsp_solver_error_code_t
+validate_result_handle(const tsp_solver_result_t* result) {
   return result == nullptr ? TSP_SOLVER_ERROR_INVALID_ARGUMENT : TSP_SOLVER_ERROR_OK;
 }
 
-}  // namespace
+} // namespace
 
 extern "C" {
 
@@ -186,9 +186,9 @@ void tsp_solver_options_destroy(tsp_solver_options_t* options) {
   delete options;
 }
 
-tsp_solver_error_code_t tsp_solver_options_set_time_limit_ms(
-    tsp_solver_options_t* options,
-    std::uint64_t time_limit_ms) {
+tsp_solver_error_code_t
+tsp_solver_options_set_time_limit_ms(tsp_solver_options_t* options,
+                                     std::uint64_t time_limit_ms) {
   if (options == nullptr) {
     return TSP_SOLVER_ERROR_INVALID_ARGUMENT;
   }
@@ -197,9 +197,9 @@ tsp_solver_error_code_t tsp_solver_options_set_time_limit_ms(
   return TSP_SOLVER_ERROR_OK;
 }
 
-tsp_solver_error_code_t tsp_solver_options_set_random_seed(
-    tsp_solver_options_t* options,
-    std::uint64_t random_seed) {
+tsp_solver_error_code_t
+tsp_solver_options_set_random_seed(tsp_solver_options_t* options,
+                                   std::uint64_t random_seed) {
   if (options == nullptr) {
     return TSP_SOLVER_ERROR_INVALID_ARGUMENT;
   }
@@ -208,9 +208,9 @@ tsp_solver_error_code_t tsp_solver_options_set_random_seed(
   return TSP_SOLVER_ERROR_OK;
 }
 
-tsp_solver_error_code_t tsp_solver_options_set_algorithm(
-    tsp_solver_options_t* options,
-    tsp_solver_algorithm_t algorithm) {
+tsp_solver_error_code_t
+tsp_solver_options_set_algorithm(tsp_solver_options_t* options,
+                                 tsp_solver_algorithm_t algorithm) {
   if (options == nullptr) {
     return TSP_SOLVER_ERROR_INVALID_ARGUMENT;
   }
@@ -240,8 +240,8 @@ tsp_solver_error_code_t tsp_solver_solve(const tsp_solver_model_t* model,
   try {
     const tsp_solver::Problem problem = to_problem(*model);
 
-    // The first public release only treats an explicit zero limit as an immediate timeout.
-    // Other values are preserved for future algorithm scheduling support.
+    // The first public release only treats an explicit zero limit as an immediate
+    // timeout. Other values are preserved for future algorithm scheduling support.
     if (options->time_limit_ms == 0) {
       auto* result = new (std::nothrow) tsp_solver_result{};
       if (result == nullptr) {
@@ -270,7 +270,8 @@ tsp_solver_error_code_t tsp_solver_solve(const tsp_solver_model_t* model,
     if (!result->tour.empty() && options->random_seed != 0) {
       const std::size_t rotation = static_cast<std::size_t>(
           options->random_seed % static_cast<std::uint64_t>(result->tour.size()));
-      std::rotate(result->tour.begin(), result->tour.begin() + rotation, result->tour.end());
+      std::rotate(result->tour.begin(), result->tour.begin() + rotation,
+                  result->tour.end());
     }
 
     *out_result = result;
@@ -296,9 +297,11 @@ tsp_solver_error_code_t tsp_solver_result_get_status(const tsp_solver_result_t* 
   return TSP_SOLVER_ERROR_OK;
 }
 
-tsp_solver_error_code_t tsp_solver_result_get_objective(const tsp_solver_result_t* result,
-                                                        tsp_solver_cost_t* out_objective) {
-  if (validate_result_handle(result) != TSP_SOLVER_ERROR_OK || out_objective == nullptr) {
+tsp_solver_error_code_t
+tsp_solver_result_get_objective(const tsp_solver_result_t* result,
+                                tsp_solver_cost_t* out_objective) {
+  if (validate_result_handle(result) != TSP_SOLVER_ERROR_OK ||
+      out_objective == nullptr) {
     return TSP_SOLVER_ERROR_INVALID_ARGUMENT;
   }
 
@@ -306,8 +309,9 @@ tsp_solver_error_code_t tsp_solver_result_get_objective(const tsp_solver_result_
   return TSP_SOLVER_ERROR_OK;
 }
 
-tsp_solver_error_code_t tsp_solver_result_get_tour_size(const tsp_solver_result_t* result,
-                                                        std::size_t* out_size) {
+tsp_solver_error_code_t
+tsp_solver_result_get_tour_size(const tsp_solver_result_t* result,
+                                std::size_t* out_size) {
   if (validate_result_handle(result) != TSP_SOLVER_ERROR_OK || out_size == nullptr) {
     return TSP_SOLVER_ERROR_INVALID_ARGUMENT;
   }
@@ -335,4 +339,4 @@ tsp_solver_error_code_t tsp_solver_result_get_tour(const tsp_solver_result_t* re
   return TSP_SOLVER_ERROR_OK;
 }
 
-}  // extern "C"
+} // extern "C"
