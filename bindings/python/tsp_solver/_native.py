@@ -3,12 +3,12 @@ from __future__ import annotations
 import ctypes
 from ctypes.util import find_library
 import enum
-from importlib.metadata import PackageNotFoundError, version
 import os
 from pathlib import Path
 from typing import Final
 
 from ._errors import LibraryLoadError, NativeCallError, VersionMismatchError
+from ._version import package_version
 
 
 __all__ = [
@@ -23,13 +23,6 @@ __all__ = [
 
 _LIBRARY_NAME: Final[str] = "tsp_solver"
 _library: ctypes.CDLL | None = None
-
-
-def _package_version() -> str:
-    try:
-        return version("tsp-solver")
-    except PackageNotFoundError:
-        return "0.1.0"
 
 
 def native_version_string(library: ctypes.CDLL | None = None) -> str:
@@ -53,7 +46,7 @@ def _ensure_version_match(package_version: str, native_version: str) -> None:
 
 
 def _check_loaded_version(library: ctypes.CDLL) -> ctypes.CDLL:
-    _ensure_version_match(_package_version(), native_version_string(library))
+    _ensure_version_match(package_version(), native_version_string(library))
     return library
 
 

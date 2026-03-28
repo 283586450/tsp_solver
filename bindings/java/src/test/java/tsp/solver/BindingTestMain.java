@@ -6,11 +6,11 @@ public final class BindingTestMain {
   private BindingTestMain() {}
 
   public static void main(String[] args) {
+    testVersionMismatchMessage();
     testSolveCompleteGraph();
     testValidationError();
     testRangeError();
     testCloseIsIdempotent();
-    testVersionMismatchMessage();
   }
 
   private static void testSolveCompleteGraph() {
@@ -88,10 +88,12 @@ public final class BindingTestMain {
   }
 
   private static void testVersionMismatchMessage() {
-    expectThrows(IllegalStateException.class, new ThrowingRunnable() {
+    expectThrowsMessage(IllegalStateException.class,
+        "Java binding version 9.9.9 does not match native library version 0.1.0. Use the jar and native bundle from the same tsp_solver release.",
+        new ThrowingRunnable() {
       @Override
       public void run() {
-        NativeLibrary.ensureVersionMatch("0.1.0", "9.9.9");
+        NativeLibrary.load("9.9.9");
       }
     }, "mismatched Java and native versions must fail");
   }
@@ -110,10 +112,22 @@ public final class BindingTestMain {
 
   private static void expectThrows(
       Class<? extends Throwable> type, ThrowingRunnable runnable, String message) {
+    expectThrowsMessage(type, null, runnable, message);
+  }
+
+  private static void expectThrowsMessage(
+      Class<? extends Throwable> type,
+      String expectedMessage,
+      ThrowingRunnable runnable,
+      String message) {
     try {
       runnable.run();
     } catch (Throwable error) {
       if (type.isInstance(error)) {
+        if (expectedMessage != null && !expectedMessage.equals(error.getMessage())) {
+          throw new AssertionError(
+              message + ": wrong message " + error.getMessage(), error);
+        }
         return;
       }
       throw new AssertionError(message + ": wrong exception " + error, error);

@@ -18,12 +18,18 @@ public final class NativeLibrary {
   }
 
   public static void load() {
+    load(Version.STRING);
+  }
+
+  static void load(String expectedVersion) {
     if (loaded) {
+      ensureVersionMatch(expectedVersion, nativeVersionString());
       return;
     }
 
     synchronized (NativeLibrary.class) {
       if (loaded) {
+        ensureVersionMatch(expectedVersion, nativeVersionString());
         return;
       }
 
@@ -39,7 +45,7 @@ public final class NativeLibrary {
         } else {
           System.loadLibrary("tsp_solver_java_jni");
         }
-        ensureVersionMatch(Version.STRING, nativeVersionString());
+        ensureVersionMatch(expectedVersion, nativeVersionString());
         loaded = true;
         return;
       } catch (UnsatisfiedLinkError error) {

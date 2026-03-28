@@ -29,7 +29,8 @@ The first public native boundary is available in `include/tsp_solver/c_api.h`.
 The library is configured to build as a shared library by default, with a stable
 C install package and exported target (`tsp_solver::tsp_solver`). For a short
 usage example and result-handling notes, see `docs/c_api.md`. Consumers can use
-`find_package(tsp_solver CONFIG REQUIRED)` and link `tsp_solver::tsp_solver`.
+`find_package(tsp_solver <release-version> EXACT CONFIG REQUIRED)` and link
+`tsp_solver::tsp_solver`.
 
 ## Compatibility Policy
 
@@ -54,7 +55,7 @@ Build a distributable wheel with:
 cmake --build --preset <your-host-appropriate-preset> --target tsp_solver_python_wheel
 ```
 
-Use the wheel from the same release as the packaged native library.
+Use the wheel from the same release; platform wheels already bundle the matching native library.
 
 Current release wheels are built on GitHub-hosted runners and validated on the
 matching runner image. Linux wheels are not yet repaired to a manylinux policy.
