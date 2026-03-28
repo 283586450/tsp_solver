@@ -1,0 +1,90 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: ${{ matrix.os }} / release package
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            asset_name: tsp_solver-linux-x64
+            archive_ext: tar.gz
+            preset: linux-gcc-release
+          - os: macos-latest
+            asset_name: tsp_solver-macos-x64
+            archive_ext: tar.gz
+            preset: macos-clang-release
+          - os: windows-latest
+            asset_name: tsp_solver-windows-x64
+            archive_ext: zip
+            preset: windows-msvc-release
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure
+        run: cmake --preset ${{ matrix.preset }}
+
+      - name: Build
+        run: cmake --build --preset ${{ matrix.preset }}
+
+      - name: Install staging files
+        run: cmake --install build/${{ matrix.preset }} --prefix "${{ github.workspace }}/stage"
+
+      - name: Create package directory
+        shell: bash
+        run: |
+          mkdir -p dist
+          cp -R stage dist/${{ matrix.asset_name }}
+
+      - name: Archive package
+        shell: bash
+        run: |
+          python - <<'PY'
+          import pathlib
+          import shutil
+
+          asset_name = "${{ matrix.asset_name }}"
+          archive_ext = "${{ matrix.archive_ext }}"
+          base_name = pathlib.Path("dist") / asset_name
+          if archive_ext == "zip":
+              shutil.make_archive(str(base_name), "zip", root_dir="dist", base_dir=asset_name)
+          else:
+              shutil.make_archive(str(base_name), "gztar", root_dir="dist", base_dir=asset_name)
+          PY
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.asset_name }}
+          path: dist/${{ matrix.asset_name }}.${{ matrix.archive_ext }}
+          if-no-files-found: error
+
+  publish:
+    name: Publish GitHub release
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: release-assets
+          merge-multiple: true
+
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: release-assets/*

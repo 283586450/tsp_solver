@@ -1,0 +1,35 @@
+/build/
+/out/
+/.worktrees/
+/cmake-build-*/
+/install/
+/Testing/
+/CMakeCache.txt
+/CMakeFiles/
+/compile_commands.json
+
+*.log
+*.orig
+*.rej
+
+# IDEs and editors
+.idea/
+.vscode/
+.vs/
+*.suo
+*.user
+*.vcxproj.user
+
+# C++ build outputs
+*.obj
+*.o
+*.a
+*.lib
+*.dll
+*.exe
+*.pdb
+
+# Python caches
+__pycache__/
+*.pyc
+.pytest_cache/
