@@ -26,7 +26,32 @@ The repository currently provides:
 ## C API
 
 The first public native boundary is available in `include/tsp_solver/c_api.h`.
-For a short usage example and result-handling notes, see `docs/c_api.md`.
+The library is configured to build as a shared library by default, with a stable
+C install package and exported target (`tsp_solver::tsp_solver`). For a short
+usage example and result-handling notes, see `docs/c_api.md`. Consumers can use
+`find_package(tsp_solver CONFIG REQUIRED)` and link `tsp_solver::tsp_solver`.
+
+## Python bindings
+
+The Python package lives under `bindings/python/tsp_solver` and wraps the C API.
+For local development, point `TSP_SOLVER_LIBRARY_PATH` at the built shared library
+and add `bindings/python` to `PYTHONPATH` before running:
+
+```bash
+python -m unittest discover -s tests/python -p "test_*.py" -v
+```
+
+## Java bindings
+
+The Java bindings live under `bindings/java/` and are built through CMake as a
+thin JNI layer over the C API. Run the Java binding tests with:
+
+```bash
+ctest --preset <your-host-appropriate-preset> --output-on-failure -R tsp_solver_java_tests
+```
+
+For local development, point `TSP_SOLVER_JAVA_LIBRARY_PATH` at the built JNI
+bridge or pass `-Dtsp.solver.library.path=/absolute/path/to/tsp_solver_java_jni`.
 
 ## Build and test
 

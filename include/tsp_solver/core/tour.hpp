@@ -1,6 +1,7 @@
 #pragma once
 
 #include "tsp_solver/core/problem.hpp"
+#include "tsp_solver/export.h"
 
 #include <vector>
 
@@ -13,6 +14,7 @@ struct Tour {
   [[nodiscard]] bool empty() const noexcept { return order.empty(); }
 };
 
-[[nodiscard]] Cost compute_tour_cost(const Problem& problem, const Tour& tour);
+TSP_SOLVER_API [[nodiscard]] Cost compute_tour_cost(const Problem& problem,
+                                                    const Tour& tour);
 
 } // namespace tsp_solver
