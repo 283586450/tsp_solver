@@ -1,6 +1,13 @@
 find_package(Java REQUIRED)
 find_package(JNI REQUIRED)
 
+set(TSP_SOLVER_JAVA_GENERATED_SOURCES_DIR ${CMAKE_CURRENT_BINARY_DIR}/generated-java)
+set(TSP_SOLVER_JAVA_VERSION_SOURCE
+    ${TSP_SOLVER_JAVA_GENERATED_SOURCES_DIR}/tsp/solver/Version.java)
+file(MAKE_DIRECTORY ${TSP_SOLVER_JAVA_GENERATED_SOURCES_DIR}/tsp/solver)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/main/java/tsp/solver/Version.java.in
+               ${TSP_SOLVER_JAVA_VERSION_SOURCE} @ONLY)
+
 set(TSP_SOLVER_JAVA_MAIN_SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/src/main/java/tsp/solver/Algorithm.java
   ${CMAKE_CURRENT_SOURCE_DIR}/src/main/java/tsp/solver/Model.java
@@ -10,7 +17,8 @@ set(TSP_SOLVER_JAVA_MAIN_SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/src/main/java/tsp/solver/Result.java
   ${CMAKE_CURRENT_SOURCE_DIR}/src/main/java/tsp/solver/Solver.java
   ${CMAKE_CURRENT_SOURCE_DIR}/src/main/java/tsp/solver/SolverNativeException.java
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/main/java/tsp/solver/Status.java)
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/main/java/tsp/solver/Status.java
+  ${TSP_SOLVER_JAVA_VERSION_SOURCE})
 
 set(TSP_SOLVER_JAVA_TEST_SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/src/test/java/tsp/solver/BindingTestMain.java)

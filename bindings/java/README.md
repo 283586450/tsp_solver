@@ -6,6 +6,8 @@ Release builds produce two Java-facing artifacts:
 - `tsp-solver-java-native-<os>-<arch>-<version>` containing `tsp_solver_java_jni`
   plus the core `tsp_solver` shared library
 
+Use the API jar and native bundle from the same release version.
+
 Point `-Dtsp.solver.library.path` at the JNI bridge inside the native bundle when
 running against packaged artifacts.
 

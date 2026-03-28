@@ -61,6 +61,12 @@ jlong to_java_handle(const void* handle) {
 
 extern "C" {
 
+JNIEXPORT jstring JNICALL Java_tsp_solver_NativeLibrary_nativeVersionString(JNIEnv* env,
+                                                                            jclass) {
+  const char* version = tsp_solver_version_string();
+  return env->NewStringUTF(version == nullptr ? "" : version);
+}
+
 JNIEXPORT jlong JNICALL Java_tsp_solver_Model_nativeCreate(JNIEnv* env, jclass) {
   tsp_solver_model_t* model = nullptr;
   if (throw_for_error(env, tsp_solver_model_create(&model), "failed to create model")) {

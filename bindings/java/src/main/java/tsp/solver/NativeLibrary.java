@@ -5,13 +5,31 @@ public final class NativeLibrary {
 
   private NativeLibrary() {}
 
+  private static native String nativeVersionString();
+
+  static void ensureVersionMatch(String javaVersion, String nativeVersion) {
+    if (javaVersion.equals(nativeVersion)) {
+      return;
+    }
+    throw new IllegalStateException(
+        "Java binding version " + javaVersion
+            + " does not match native library version " + nativeVersion
+            + ". Use the jar and native bundle from the same tsp_solver release.");
+  }
+
   public static void load() {
+    load(Version.STRING);
+  }
+
+  static void load(String expectedVersion) {
     if (loaded) {
+      ensureVersionMatch(expectedVersion, nativeVersionString());
       return;
     }
 
     synchronized (NativeLibrary.class) {
       if (loaded) {
+        ensureVersionMatch(expectedVersion, nativeVersionString());
         return;
       }
 
@@ -27,6 +45,7 @@ public final class NativeLibrary {
         } else {
           System.loadLibrary("tsp_solver_java_jni");
         }
+        ensureVersionMatch(expectedVersion, nativeVersionString());
         loaded = true;
         return;
       } catch (UnsatisfiedLinkError error) {

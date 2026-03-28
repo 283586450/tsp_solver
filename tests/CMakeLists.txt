@@ -29,6 +29,7 @@ add_test(NAME tsp_solver_c_api_error_test COMMAND tsp_solver_c_api_error_test)
 set(_tsp_solver_package_smoke_args
     -Dbinary_dir=${CMAKE_BINARY_DIR}
     -Dmake_program=${CMAKE_MAKE_PROGRAM}
+    -Dproject_version=${PROJECT_VERSION}
     -Dc_compiler=${CMAKE_C_COMPILER}
     -Dcxx_compiler=${CMAKE_CXX_COMPILER})
 

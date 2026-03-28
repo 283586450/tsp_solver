@@ -7,7 +7,8 @@ import os
 from pathlib import Path
 from typing import Final
 
-from ._errors import LibraryLoadError, NativeCallError
+from ._errors import LibraryLoadError, NativeCallError, VersionMismatchError
+from ._version import package_version
 
 
 __all__ = [
@@ -22,6 +23,31 @@ __all__ = [
 
 _LIBRARY_NAME: Final[str] = "tsp_solver"
 _library: ctypes.CDLL | None = None
+
+
+def native_version_string(library: ctypes.CDLL | None = None) -> str:
+    loaded_library = load_library() if library is None else library
+    loaded_library.tsp_solver_version_string.argtypes = []
+    loaded_library.tsp_solver_version_string.restype = ctypes.c_char_p
+    value = loaded_library.tsp_solver_version_string()
+    if value is None:
+        raise NativeCallError("native library did not provide a version string")
+    return value.decode("utf-8")
+
+
+def _ensure_version_match(package_version: str, native_version: str) -> None:
+    if package_version == native_version:
+        return
+    raise VersionMismatchError(
+        "Python package version "
+        f"{package_version} does not match native library version {native_version}. "
+        "Use Python and native artifacts from the same tsp_solver release."
+    )
+
+
+def _check_loaded_version(library: ctypes.CDLL) -> ctypes.CDLL:
+    _ensure_version_match(package_version(), native_version_string(library))
+    return library
 
 
 class Algorithm(enum.IntEnum):
@@ -79,10 +105,13 @@ def load_library() -> ctypes.CDLL:
     if env_path:
         attempts.append(f"TSP_SOLVER_LIBRARY_PATH={env_path!r}")
         try:
-            _library = ctypes.CDLL(env_path)
+            _library = _check_loaded_version(ctypes.CDLL(env_path))
             return _library
         except OSError as exc:
             env_error = exc
+        except VersionMismatchError:
+            _library = None
+            raise
         else:
             env_error = None
     else:
@@ -91,7 +120,7 @@ def load_library() -> ctypes.CDLL:
     local_library = _load_local_library()
     if local_library is not None:
         attempts.append("package-local library")
-        _library = local_library
+        _library = _check_loaded_version(local_library)
         return _library
 
     local_error = _local_library_error
@@ -100,10 +129,13 @@ def load_library() -> ctypes.CDLL:
     if found:
         attempts.append(f"ctypes.util.find_library({_LIBRARY_NAME!r}) -> {found!r}")
         try:
-            _library = ctypes.CDLL(found)
+            _library = _check_loaded_version(ctypes.CDLL(found))
             return _library
         except OSError as exc:
             find_error = exc
+        except VersionMismatchError:
+            _library = None
+            raise
         else:
             find_error = None
     else:

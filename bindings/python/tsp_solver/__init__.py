@@ -1,14 +1,15 @@
 from __future__ import annotations
 
-from importlib.metadata import PackageNotFoundError, version
-
 from ._binding import Algorithm, Model, Options, Result, Status, solve
-from ._errors import LibraryLoadError, NativeCallError, SolverError
+from ._errors import (
+    LibraryLoadError,
+    NativeCallError,
+    SolverError,
+    VersionMismatchError,
+)
+from ._version import package_version
 
-try:
-    __version__ = version("tsp-solver")
-except PackageNotFoundError:
-    __version__ = "0.1.0"
+__version__ = package_version()
 
 __all__ = [
     "Algorithm",
@@ -19,6 +20,7 @@ __all__ = [
     "Result",
     "Status",
     "SolverError",
+    "VersionMismatchError",
     "__version__",
     "solve",
 ]

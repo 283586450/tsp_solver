@@ -28,6 +28,13 @@ struct tsp_solver_result {
 
 namespace {
 
+#define TSP_SOLVER_STRINGIFY_IMPL(value) #value
+#define TSP_SOLVER_STRINGIFY(value) TSP_SOLVER_STRINGIFY_IMPL(value)
+
+constexpr char kVersionString[] =
+    TSP_SOLVER_STRINGIFY(TSP_SOLVER_VERSION_MAJOR) "." TSP_SOLVER_STRINGIFY(
+        TSP_SOLVER_VERSION_MINOR) "." TSP_SOLVER_STRINGIFY(TSP_SOLVER_VERSION_PATCH);
+
 [[nodiscard]] bool is_valid_algorithm(tsp_solver_algorithm_t algorithm) {
   return algorithm == TSP_SOLVER_ALGORITHM_DEFAULT ||
          algorithm == TSP_SOLVER_ALGORITHM_LOCAL_SEARCH_2OPT;
@@ -84,7 +91,7 @@ validate_result_handle(const tsp_solver_result_t* result) {
 extern "C" {
 
 const char* tsp_solver_version_string(void) {
-  return "0.1.0";
+  return kVersionString;
 }
 
 tsp_solver_error_code_t tsp_solver_model_create(tsp_solver_model_t** out_model) {
