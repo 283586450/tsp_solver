@@ -1,8 +1,6 @@
 #include "tsp_solver/c_api.h"
 
-#include <assert.h>
 #include <stddef.h>
-#include <stdint.h>
 
 int main(void) {
   _Static_assert(TSP_SOLVER_VERSION_MAJOR == 0, "major version");
