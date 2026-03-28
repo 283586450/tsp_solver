@@ -1,5 +1,7 @@
 #pragma once
 
+#include "tsp_solver/export.h"
+
 #include <stddef.h>
 #include <stdint.h>
 
@@ -43,54 +45,44 @@ typedef enum tsp_solver_algorithm {
   TSP_SOLVER_ALGORITHM_LOCAL_SEARCH_2OPT,
 } tsp_solver_algorithm_t;
 
-const char* tsp_solver_version_string(void);
+TSP_SOLVER_API const char* tsp_solver_version_string(void);
 
-tsp_solver_error_code_t tsp_solver_model_create(tsp_solver_model_t** out_model);
-void tsp_solver_model_destroy(tsp_solver_model_t* model);
-tsp_solver_error_code_t tsp_solver_model_add_node(
-    tsp_solver_model_t* model,
-    tsp_solver_node_id_t* out_node_id);
-tsp_solver_error_code_t tsp_solver_model_set_distance(
-    tsp_solver_model_t* model,
-    tsp_solver_node_id_t from,
-    tsp_solver_node_id_t to,
-    tsp_solver_cost_t distance);
-tsp_solver_error_code_t tsp_solver_model_validate(const tsp_solver_model_t* model);
+TSP_SOLVER_API tsp_solver_error_code_t
+tsp_solver_model_create(tsp_solver_model_t** out_model);
+TSP_SOLVER_API void tsp_solver_model_destroy(tsp_solver_model_t* model);
+TSP_SOLVER_API tsp_solver_error_code_t
+tsp_solver_model_add_node(tsp_solver_model_t* model, tsp_solver_node_id_t* out_node_id);
+TSP_SOLVER_API tsp_solver_error_code_t
+tsp_solver_model_set_distance(tsp_solver_model_t* model, tsp_solver_node_id_t from,
+                              tsp_solver_node_id_t to, tsp_solver_cost_t distance);
+TSP_SOLVER_API tsp_solver_error_code_t
+tsp_solver_model_validate(const tsp_solver_model_t* model);
 
-tsp_solver_error_code_t tsp_solver_options_create(
-    tsp_solver_options_t** out_options);
-void tsp_solver_options_destroy(tsp_solver_options_t* options);
-tsp_solver_error_code_t tsp_solver_options_set_time_limit_ms(
-    tsp_solver_options_t* options,
-    uint64_t time_limit_ms);
-tsp_solver_error_code_t tsp_solver_options_set_random_seed(
-    tsp_solver_options_t* options,
-    uint64_t random_seed);
-tsp_solver_error_code_t tsp_solver_options_set_algorithm(
-    tsp_solver_options_t* options,
-    tsp_solver_algorithm_t algorithm);
+TSP_SOLVER_API tsp_solver_error_code_t
+tsp_solver_options_create(tsp_solver_options_t** out_options);
+TSP_SOLVER_API void tsp_solver_options_destroy(tsp_solver_options_t* options);
+TSP_SOLVER_API tsp_solver_error_code_t tsp_solver_options_set_time_limit_ms(
+    tsp_solver_options_t* options, uint64_t time_limit_ms);
+TSP_SOLVER_API tsp_solver_error_code_t
+tsp_solver_options_set_random_seed(tsp_solver_options_t* options, uint64_t random_seed);
+TSP_SOLVER_API tsp_solver_error_code_t tsp_solver_options_set_algorithm(
+    tsp_solver_options_t* options, tsp_solver_algorithm_t algorithm);
 
-tsp_solver_error_code_t tsp_solver_solve(
-    const tsp_solver_model_t* model,
-    const tsp_solver_options_t* options,
-    tsp_solver_result_t** out_result);
+TSP_SOLVER_API tsp_solver_error_code_t
+tsp_solver_solve(const tsp_solver_model_t* model, const tsp_solver_options_t* options,
+                 tsp_solver_result_t** out_result);
 
-void tsp_solver_result_destroy(tsp_solver_result_t* result);
-tsp_solver_error_code_t tsp_solver_result_get_status(
-    const tsp_solver_result_t* result,
-    tsp_solver_status_t* out_status);
-tsp_solver_error_code_t tsp_solver_result_get_objective(
-    const tsp_solver_result_t* result,
-    tsp_solver_cost_t* out_objective);
-tsp_solver_error_code_t tsp_solver_result_get_tour_size(
-    const tsp_solver_result_t* result,
-    size_t* out_size);
-tsp_solver_error_code_t tsp_solver_result_get_tour(
-    const tsp_solver_result_t* result,
-    tsp_solver_node_id_t* out_nodes,
-    size_t capacity,
+TSP_SOLVER_API void tsp_solver_result_destroy(tsp_solver_result_t* result);
+TSP_SOLVER_API tsp_solver_error_code_t tsp_solver_result_get_status(
+    const tsp_solver_result_t* result, tsp_solver_status_t* out_status);
+TSP_SOLVER_API tsp_solver_error_code_t tsp_solver_result_get_objective(
+    const tsp_solver_result_t* result, tsp_solver_cost_t* out_objective);
+TSP_SOLVER_API tsp_solver_error_code_t
+tsp_solver_result_get_tour_size(const tsp_solver_result_t* result, size_t* out_size);
+TSP_SOLVER_API tsp_solver_error_code_t tsp_solver_result_get_tour(
+    const tsp_solver_result_t* result, tsp_solver_node_id_t* out_nodes, size_t capacity,
     size_t* out_written);
 
 #ifdef __cplusplus
-}  // extern "C"
+} // extern "C"
 #endif
